@@ -65,29 +65,183 @@ fun DashboardContent(
             .fillMaxSize()
             .background(Color(0xFFF2F3F5))
     ) {
-        // Header Section
+        // Stats Section at Top
         item {
-            Column(
+            Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .background(Color(0xFFF2F3F5))
-                    .padding(16.dp)
+                    .padding(16.dp),
+                horizontalArrangement = Arrangement.spacedBy(12.dp)
             ) {
-                Text(
-                    text = "Net Worth Dashboard",
-                    color = Color(0xFF1F2328),
-                    fontSize = 28.sp,
-                    fontWeight = FontWeight.Bold,
-                    modifier = Modifier.padding(bottom = 12.dp)
-                )
+                Card(
+                    modifier = Modifier
+                        .weight(1f)
+                        .height(80.dp),
+                    colors = CardDefaults.cardColors(containerColor = Color(0xFF6200EE))
+                ) {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(10.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.Center
+                    ) {
+                        Text(
+                            text = "Net Worth",
+                            color = Color(0xFFE1BEE7),
+                            fontSize = 9.sp,
+                            fontWeight = FontWeight.SemiBold
+                        )
+                        Text(
+                            text = "€ ${"%.2f".format(netWorth)}",
+                            color = Color.White,
+                            fontSize = 16.sp,
+                            fontWeight = FontWeight.Bold,
+                            modifier = Modifier.padding(top = 4.dp)
+                        )
+                    }
+                }
 
+                Card(
+                    modifier = Modifier
+                        .weight(1f)
+                        .height(80.dp),
+                    colors = CardDefaults.cardColors(containerColor = Color(0xFF03DAC6))
+                ) {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(10.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.Center
+                    ) {
+                        Text(
+                            text = "Assets",
+                            color = Color(0xFF00695C),
+                            fontSize = 9.sp,
+                            fontWeight = FontWeight.SemiBold
+                        )
+                        Text(
+                            text = "€ ${"%.2f".format(totalAssets)}",
+                            color = Color(0xFF00695C),
+                            fontSize = 14.sp,
+                            fontWeight = FontWeight.Bold,
+                            modifier = Modifier.padding(top = 4.dp)
+                        )
+                    }
+                }
+
+                Card(
+                    modifier = Modifier
+                        .weight(1f)
+                        .height(80.dp),
+                    colors = CardDefaults.cardColors(containerColor = Color(0xFFCF6679))
+                ) {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(10.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.Center
+                    ) {
+                        Text(
+                            text = "Liabilities",
+                            color = Color.White,
+                            fontSize = 9.sp,
+                            fontWeight = FontWeight.SemiBold
+                        )
+                        Text(
+                            text = "€ ${"%.2f".format(totalLiabilities)}",
+                            color = Color.White,
+                            fontSize = 14.sp,
+                            fontWeight = FontWeight.Bold,
+                            modifier = Modifier.padding(top = 4.dp)
+                        )
+                    }
+                }
+            }
+        }
+
+        // Action Buttons
+        item {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp)
+                    .padding(bottom = 16.dp),
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                Button(
+                    onClick = onAddEntry,
+                    modifier = Modifier.weight(1f),
+                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF6200EE))
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Add,
+                        contentDescription = "Add",
+                        modifier = Modifier.size(18.dp),
+                        tint = Color.White
+                    )
+                    Text("Add", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 12.sp)
+                }
+
+                Button(
+                    onClick = onViewCharts,
+                    modifier = Modifier.weight(1f),
+                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF03DAC6))
+                ) {
+                    Text("Charts", color = Color.Black, fontWeight = FontWeight.Bold, fontSize = 12.sp)
+                }
+
+                Button(
+                    onClick = onImportData,
+                    modifier = Modifier.weight(1f),
+                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF2563EB))
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.UploadFile,
+                        contentDescription = "Import",
+                        modifier = Modifier.size(14.dp),
+                        tint = Color.White
+                    )
+                    Text("Import", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 11.sp)
+                }
+
+                Button(
+                    onClick = onDebug,
+                    modifier = Modifier.weight(1f),
+                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF6B7280))
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.BugReport,
+                        contentDescription = "Debug",
+                        modifier = Modifier.size(14.dp),
+                        tint = Color.White
+                    )
+                    Text("Debug", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 11.sp)
+                }
+            }
+        }
+
+        // Assets Section with Dropdown
+        if (assetEntries.isNotEmpty()) {
+            item {
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(bottom = 16.dp),
+                        .padding(horizontal = 16.dp)
+                        .padding(bottom = 12.dp),
                     horizontalArrangement = Arrangement.spacedBy(12.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
+                    Text(
+                        text = "Assets (${assetEntries.size})",
+                        color = Color(0xFF03DAC6),
+                        fontSize = 16.sp,
+                        fontWeight = FontWeight.Bold,
+                        modifier = Modifier.weight(1f)
+                    )
+
                     Box(
                         modifier = Modifier.weight(1f)
                     ) {
@@ -95,7 +249,7 @@ fun DashboardContent(
                             onClick = { expandedDropdown = !expandedDropdown },
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .height(44.dp),
+                                .height(40.dp),
                             colors = ButtonDefaults.buttonColors(
                                 containerColor = Color(0xFFFFFFFF),
                                 contentColor = Color(0xFF1F2328)
@@ -106,23 +260,23 @@ fun DashboardContent(
                             Row(
                                 modifier = Modifier
                                     .fillMaxWidth()
-                                    .padding(horizontal = 12.dp),
+                                    .padding(horizontal = 8.dp),
                                 horizontalArrangement = Arrangement.SpaceBetween,
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
                                 Text(
                                     text = when {
-                                        selectedDateTime.isEmpty() -> "Select Date"
-                                        selectedDateTime == latestDateTime -> "Load most recent"
-                                        else -> "Load older input to modify"
+                                        selectedDateTime.isEmpty() -> "Select"
+                                        selectedDateTime == latestDateTime -> "Most recent"
+                                        else -> "Older"
                                     },
-                                    fontSize = 12.sp,
+                                    fontSize = 11.sp,
                                     fontWeight = FontWeight.SemiBold
                                 )
                                 Icon(
                                     imageVector = Icons.Default.ArrowDropDown,
                                     contentDescription = "Dropdown",
-                                    modifier = Modifier.size(20.dp)
+                                    modifier = Modifier.size(18.dp)
                                 )
                             }
                         }
@@ -175,181 +329,6 @@ fun DashboardContent(
                         }
                     }
                 }
-
-                if (selectedDateTime.isNotEmpty()) {
-                    Text(
-                        text = "Viewing: $selectedDateTime",
-                        color = Color(0xFF6B7280),
-                        fontSize = 12.sp,
-                        modifier = Modifier.padding(bottom = 16.dp)
-                    )
-                }
-
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(bottom = 16.dp),
-                    horizontalArrangement = Arrangement.spacedBy(12.dp)
-                ) {
-                    Card(
-                        modifier = Modifier
-                            .weight(1f)
-                            .height(100.dp),
-                        colors = CardDefaults.cardColors(containerColor = Color(0xFF6200EE))
-                    ) {
-                        Column(
-                            modifier = Modifier
-                                .fillMaxSize()
-                                .padding(12.dp),
-                            horizontalAlignment = Alignment.CenterHorizontally,
-                            verticalArrangement = Arrangement.Center
-                        ) {
-                            Text(
-                                text = "Current Net Worth",
-                                color = Color(0xFFE1BEE7),
-                                fontSize = 10.sp,
-                                fontWeight = FontWeight.SemiBold
-                            )
-                            Text(
-                                text = "€ ${"%.2f".format(netWorth)}",
-                                color = Color.White,
-                                fontSize = 24.sp,
-                                fontWeight = FontWeight.Bold,
-                                modifier = Modifier.padding(top = 6.dp)
-                            )
-                        }
-                    }
-
-                    Card(
-                        modifier = Modifier
-                            .weight(1f)
-                            .height(100.dp),
-                        colors = CardDefaults.cardColors(containerColor = Color(0xFF03DAC6))
-                    ) {
-                        Column(
-                            modifier = Modifier
-                                .fillMaxSize()
-                                .padding(12.dp),
-                            horizontalAlignment = Alignment.CenterHorizontally,
-                            verticalArrangement = Arrangement.Center
-                        ) {
-                            Text(
-                                text = "Assets",
-                                color = Color(0xFF00695C),
-                                fontSize = 10.sp,
-                                fontWeight = FontWeight.SemiBold
-                            )
-                            Text(
-                                text = "€ ${"%.2f".format(totalAssets)}",
-                                color = Color(0xFF00695C),
-                                fontSize = 20.sp,
-                                fontWeight = FontWeight.Bold,
-                                modifier = Modifier.padding(top = 6.dp)
-                            )
-                        }
-                    }
-
-                    Card(
-                        modifier = Modifier
-                            .weight(1f)
-                            .height(100.dp),
-                        colors = CardDefaults.cardColors(containerColor = Color(0xFFCF6679))
-                    ) {
-                        Column(
-                            modifier = Modifier
-                                .fillMaxSize()
-                                .padding(12.dp),
-                            horizontalAlignment = Alignment.CenterHorizontally,
-                            verticalArrangement = Arrangement.Center
-                        ) {
-                            Text(
-                                text = "Liabilities",
-                                color = Color.White,
-                                fontSize = 10.sp,
-                                fontWeight = FontWeight.SemiBold
-                            )
-                            Text(
-                                text = "€ ${"%.2f".format(totalLiabilities)}",
-                                color = Color.White,
-                                fontSize = 20.sp,
-                                fontWeight = FontWeight.Bold,
-                                modifier = Modifier.padding(top = 6.dp)
-                            )
-                        }
-                    }
-                }
-
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(bottom = 16.dp),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    Button(
-                        onClick = onAddEntry,
-                        modifier = Modifier.weight(1f),
-                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF6200EE))
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.Add,
-                            contentDescription = "Add",
-                            modifier = Modifier.size(18.dp),
-                            tint = Color.White
-                        )
-                        Text("Add", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 12.sp)
-                    }
-
-                    Button(
-                        onClick = onViewCharts,
-                        modifier = Modifier.weight(1f),
-                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF03DAC6))
-                    ) {
-                        Text("Charts", color = Color.Black, fontWeight = FontWeight.Bold, fontSize = 12.sp)
-                    }
-
-                    Button(
-                        onClick = onImportData,
-                        modifier = Modifier.weight(1f),
-                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF2563EB))
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.UploadFile,
-                            contentDescription = "Import",
-                            modifier = Modifier.size(14.dp),
-                            tint = Color.White
-                        )
-                        Text("Import", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 11.sp)
-                    }
-
-                    Button(
-                        onClick = onDebug,
-                        modifier = Modifier.weight(1f),
-                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF6B7280))
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.BugReport,
-                            contentDescription = "Debug",
-                            modifier = Modifier.size(14.dp),
-                            tint = Color.White
-                        )
-                        Text("Debug", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 11.sp)
-                    }
-                }
-            }
-        }
-
-        // Assets Section
-        if (assetEntries.isNotEmpty()) {
-            item {
-                Text(
-                    text = "Assets (${assetEntries.size})",
-                    color = Color(0xFF03DAC6),
-                    fontSize = 16.sp,
-                    fontWeight = FontWeight.Bold,
-                    modifier = Modifier
-                        .padding(bottom = 12.dp, top = 8.dp)
-                        .padding(horizontal = 16.dp)
-                )
             }
 
             items(assetEntries) { entry ->
