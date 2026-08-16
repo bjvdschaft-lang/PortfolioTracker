@@ -1,11 +1,9 @@
 package com.portfolio.tracker.ui.screens
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.BugReport
@@ -19,6 +17,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.overflow.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.portfolio.tracker.data.entity.PortfolioEntryEntity
@@ -368,16 +367,54 @@ fun DashboardContent(
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(8.dp)
-                            .horizontalScroll(rememberScrollState()),
+                            .padding(8.dp),
                         horizontalArrangement = Arrangement.spacedBy(8.dp),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Text(text = entry.category, color = Color(0xFF6B7280), fontSize = 10.sp, fontWeight = FontWeight.SemiBold, modifier = Modifier.width(70.dp))
-                        Text(text = entry.description, color = Color(0xFF1F2328), fontSize = 10.sp, fontWeight = FontWeight.Bold, modifier = Modifier.width(80.dp))
-                        Text(text = "${"%.2f".format(entry.amount)}", color = Color(0xFF1F2328), fontSize = 10.sp, fontWeight = FontWeight.SemiBold, modifier = Modifier.width(60.dp))
-                        Text(text = entry.currency, color = Color(0xFF6B7280), fontSize = 10.sp, modifier = Modifier.width(40.dp))
-                        Text(text = "€ ${"%.2f".format(entry.convertedAmount)}", color = Color(0xFF03DAC6), fontSize = 10.sp, fontWeight = FontWeight.Bold, modifier = Modifier.width(75.dp))
+                        Text(
+                            text = entry.category,
+                            color = Color(0xFF6B7280),
+                            fontSize = 10.sp,
+                            fontWeight = FontWeight.SemiBold,
+                            modifier = Modifier.weight(1f),
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis
+                        )
+                        Text(
+                            text = entry.description,
+                            color = Color(0xFF1F2328),
+                            fontSize = 10.sp,
+                            fontWeight = FontWeight.Bold,
+                            modifier = Modifier.weight(1.5f),
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis
+                        )
+                        Text(
+                            text = "${"%.2f".format(entry.amount)}",
+                            color = Color(0xFF1F2328),
+                            fontSize = 10.sp,
+                            fontWeight = FontWeight.SemiBold,
+                            modifier = Modifier.weight(1f),
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis
+                        )
+                        Text(
+                            text = entry.currency,
+                            color = Color(0xFF6B7280),
+                            fontSize = 10.sp,
+                            modifier = Modifier.weight(0.8f),
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis
+                        )
+                        Text(
+                            text = "€ ${"%.2f".format(entry.convertedAmount)}",
+                            color = Color(0xFF03DAC6),
+                            fontSize = 10.sp,
+                            fontWeight = FontWeight.Bold,
+                            modifier = Modifier.weight(1.2f),
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis
+                        )
 
                         IconButton(onClick = { onEditEntry(entry) }, modifier = Modifier.size(24.dp)) {
                             Icon(imageVector = Icons.Default.Edit, contentDescription = "Edit", tint = Color(0xFF2563EB), modifier = Modifier.size(14.dp))
@@ -446,16 +483,54 @@ fun DashboardContent(
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(8.dp)
-                            .horizontalScroll(rememberScrollState()),
+                            .padding(8.dp),
                         horizontalArrangement = Arrangement.spacedBy(8.dp),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Text(text = entry.category, color = Color(0xFF6B7280), fontSize = 10.sp, fontWeight = FontWeight.SemiBold, modifier = Modifier.width(70.dp))
-                        Text(text = entry.description, color = Color(0xFF1F2328), fontSize = 10.sp, fontWeight = FontWeight.Bold, modifier = Modifier.width(80.dp))
-                        Text(text = "${"%.2f".format(entry.amount)}", color = Color(0xFF1F2328), fontSize = 10.sp, fontWeight = FontWeight.SemiBold, modifier = Modifier.width(60.dp))
-                        Text(text = entry.currency, color = Color(0xFF6B7280), fontSize = 10.sp, modifier = Modifier.width(40.dp))
-                        Text(text = "€ ${"%.2f".format(entry.convertedAmount)}", color = Color(0xFFCF6679), fontSize = 10.sp, fontWeight = FontWeight.Bold, modifier = Modifier.width(75.dp))
+                        Text(
+                            text = entry.category,
+                            color = Color(0xFF6B7280),
+                            fontSize = 10.sp,
+                            fontWeight = FontWeight.SemiBold,
+                            modifier = Modifier.weight(1f),
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis
+                        )
+                        Text(
+                            text = entry.description,
+                            color = Color(0xFF1F2328),
+                            fontSize = 10.sp,
+                            fontWeight = FontWeight.Bold,
+                            modifier = Modifier.weight(1.5f),
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis
+                        )
+                        Text(
+                            text = "${"%.2f".format(entry.amount)}",
+                            color = Color(0xFF1F2328),
+                            fontSize = 10.sp,
+                            fontWeight = FontWeight.SemiBold,
+                            modifier = Modifier.weight(1f),
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis
+                        )
+                        Text(
+                            text = entry.currency,
+                            color = Color(0xFF6B7280),
+                            fontSize = 10.sp,
+                            modifier = Modifier.weight(0.8f),
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis
+                        )
+                        Text(
+                            text = "€ ${"%.2f".format(entry.convertedAmount)}",
+                            color = Color(0xFFCF6679),
+                            fontSize = 10.sp,
+                            fontWeight = FontWeight.Bold,
+                            modifier = Modifier.weight(1.2f),
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis
+                        )
 
                         IconButton(onClick = { onEditEntry(entry) }, modifier = Modifier.size(24.dp)) {
                             Icon(imageVector = Icons.Default.Edit, contentDescription = "Edit", tint = Color(0xFF2563EB), modifier = Modifier.size(14.dp))
