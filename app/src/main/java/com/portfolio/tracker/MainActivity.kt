@@ -4,12 +4,8 @@ import com.portfolio.tracker.ui.screens.DebugScreen
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import com.portfolio.tracker.data.database.AppDatabase
 import com.portfolio.tracker.data.entity.PortfolioEntryEntity
 import com.portfolio.tracker.data.repository.EntryRepository
@@ -31,46 +27,37 @@ class MainActivity : ComponentActivity() {
             var selectedEntry by remember { mutableStateOf<PortfolioEntryEntity?>(null) }
             val dbEntries by repository.getAllEntries().collectAsState(initial = emptyList())
 
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .background(Color(0xFFF2F3F5))
-            ) {
-                when (currentScreen) {
-                    "dashboard" -> DashboardContent(
-                        entries = dbEntries,
-                        repository = repository,
-                        onAddEntry = { currentScreen = "add_entry"; selectedEntry = null },
-                        onEditEntry = { entry -> selectedEntry = entry; currentScreen = "add_entry" },
-                        onViewCharts = { currentScreen = "charts" },
-                        onImportData = { currentScreen = "import" },
-                        onDebug = { currentScreen = "debug" }
-                    )
-                    "add_entry" -> AddEntryContent(
-                        repository = repository,
-                        entry = selectedEntry,
-                        onSave = { currentScreen = "dashboard"; selectedEntry = null },
-                        onBack = { currentScreen = "dashboard"; selectedEntry = null }
-                    )
-                    "charts" -> ChartsScreen(
-                        entries = dbEntries,
-                        onBack = { currentScreen = "dashboard" }
-                    )
-                    "import" -> ImportScreen(
-                        repository = repository,
-                        onBack = { currentScreen = "dashboard" },
-                        onImportComplete = { currentScreen = "dashboard" }
-                    )
-                    "debug" -> DebugScreen(
-                        entries = dbEntries,
-                        repository = repository,
-                        onBack = { currentScreen = "dashboard" }
-                    )
-                }
+            when (currentScreen) {
+                "dashboard" -> DashboardContent(
+                    entries = dbEntries,
+                    repository = repository,
+                    onAddEntry = { currentScreen = "add_entry"; selectedEntry = null },
+                    onEditEntry = { entry -> selectedEntry = entry; currentScreen = "add_entry" },
+                    onViewCharts = { currentScreen = "charts" },
+                    onImportData = { currentScreen = "import" },
+                    onDebug = { currentScreen = "debug" }
+                )
+                "add_entry" -> AddEntryContent(
+                    repository = repository,
+                    entry = selectedEntry,
+                    onSave = { currentScreen = "dashboard"; selectedEntry = null },
+                    onBack = { currentScreen = "dashboard"; selectedEntry = null }
+                )
+                "charts" -> ChartsScreen(
+                    entries = dbEntries,
+                    onBack = { currentScreen = "dashboard" }
+                )
+                "import" -> ImportScreen(
+                    repository = repository,
+                    onBack = { currentScreen = "dashboard" },
+                    onImportComplete = { currentScreen = "dashboard" }
+                )
+                "debug" -> DebugScreen(
+                    entries = dbEntries,
+                    repository = repository,
+                    onBack = { currentScreen = "dashboard" }
+                )
             }
         }
     }
 }
-
-
-
