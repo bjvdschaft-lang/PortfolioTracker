@@ -89,9 +89,7 @@ fun DashboardContent(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Box(
-                        modifier = Modifier
-                            .weight(1f)
-                            .wrapContentSize(Alignment.TopStart)
+                        modifier = Modifier.weight(1f)
                     ) {
                         Button(
                             onClick = { expandedDropdown = !expandedDropdown },
