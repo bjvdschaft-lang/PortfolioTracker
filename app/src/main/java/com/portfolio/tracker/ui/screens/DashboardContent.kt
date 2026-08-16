@@ -23,6 +23,7 @@ import androidx.compose.ui.unit.sp
 import com.portfolio.tracker.data.entity.PortfolioEntryEntity
 import com.portfolio.tracker.data.repository.EntryRepository
 import kotlinx.coroutines.launch
+import java.time.LocalDate
 
 @Composable
 fun DashboardContent(
@@ -50,9 +51,10 @@ fun DashboardContent(
     var monthDropdownOpen by remember { mutableStateOf(false) }
     var yearDropdownOpen by remember { mutableStateOf(false) }
 
+    val currentYear = LocalDate.now().year
     val months = listOf("J", "F", "M", "A", "M", "J", "J", "A", "S", "O", "N", "D")
     val monthNumbers = listOf("01", "02", "03", "04", "05", "06", "07", "08", "09", "10", "11", "12")
-    val years = (2020..2030).map { it.toString() }.sortedDescending()
+    val years = (2000..currentYear).map { it.toString() }.sortedDescending()
 
     val displayedMonth = if (pickedMonth.isNotEmpty()) months.getOrNull(pickedMonth.toIntOrNull()?.minus(1) ?: -1) ?: "" else ""
 
@@ -65,9 +67,21 @@ fun DashboardContent(
     val displayedEntries = if (dropdownMode == "most_recent" && latestDateTime != null) {
         entries.filter { it.dateTime == latestDateTime }
     } else if (dropdownMode == "custom_date" && pickedDate.isNotEmpty()) {
-        // Find entries that match the picked date
-        entries.filter { entry ->
-            entry.dateTime.startsWith(pickedDate)
+        // Find entries with dates before or equal to the picked date
+        val filteredEntries = entries.filter { entry ->
+            val entryDate = entry.dateTime.substringBefore(" ").substringBefore("T")
+            entryDate <= pickedDate
+        }
+        
+        // Find the maximum date that is <= pickedDate
+        val maxDate = filteredEntries.maxByOrNull { it.dateTime }?.dateTime?.substringBefore(" ")?.substringBefore("T")
+        
+        if (maxDate != null) {
+            entries.filter { entry ->
+                entry.dateTime.startsWith(maxDate)
+            }
+        } else {
+            emptyList()
         }
     } else {
         latestEntries
