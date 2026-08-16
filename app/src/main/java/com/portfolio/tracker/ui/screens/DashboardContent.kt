@@ -59,7 +59,7 @@ fun DashboardContent(
     val netWorth = totalAssets - totalLiabilities
     val scope = rememberCoroutineScope()
 
-    // Everything in one LazyColumn - ONLY scrollable container
+    // LazyColumn DIRECTLY - NO outer Column wrapper
     LazyColumn(
         modifier = Modifier
             .fillMaxSize()
