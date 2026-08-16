@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.BugReport
@@ -61,288 +62,288 @@ fun DashboardContent(
     val scope = rememberCoroutineScope()
 
     Column(modifier = Modifier.fillMaxSize()) {
-        // Header Section - Not Scrollable
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .wrapContentHeight()
-                .background(Color(0xFFF2F3F5))
-                .padding(16.dp)
-        ) {
-            Text(
-                text = "Net Worth Dashboard",
-                color = Color(0xFF1F2328),
-                fontSize = 28.sp,
-                fontWeight = FontWeight.Bold,
-                modifier = Modifier.padding(bottom = 12.dp)
-            )
-
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(bottom = 16.dp),
-                horizontalArrangement = Arrangement.spacedBy(12.dp),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Box(
-                    modifier = Modifier
-                        .weight(1f)
-                        .wrapContentSize(Alignment.TopStart)
-                ) {
-                    Button(
-                        onClick = { expandedDropdown = !expandedDropdown },
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(44.dp),
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = Color(0xFFFFFFFF),
-                            contentColor = Color(0xFF1F2328)
-                        ),
-                        shape = androidx.compose.foundation.shape.RoundedCornerShape(8.dp),
-                        border = androidx.compose.foundation.BorderStroke(1.dp, Color(0xFFE3E5E8))
-                    ) {
-                        Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(horizontal = 12.dp),
-                            horizontalArrangement = Arrangement.SpaceBetween,
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Text(
-                                text = when {
-                                    selectedDateTime.isEmpty() -> "Select Date"
-                                    selectedDateTime == latestDateTime -> "Load most recent"
-                                    else -> "Load older input to modify"
-                                },
-                                fontSize = 12.sp,
-                                fontWeight = FontWeight.SemiBold
-                            )
-                            Icon(
-                                imageVector = Icons.Default.ArrowDropDown,
-                                contentDescription = "Dropdown",
-                                modifier = Modifier.size(20.dp)
-                            )
-                        }
-                    }
-
-                    DropdownMenu(
-                        expanded = expandedDropdown,
-                        onDismissRequest = { expandedDropdown = false }
-                    ) {
-                        DropdownMenuItem(
-                            text = { Text("Select Date", fontSize = 12.sp) },
-                            onClick = {
-                                selectedDateTime = ""
-                                expandedDropdown = false
-                            }
-                        )
-
-                        Divider(color = Color(0xFFE3E5E8), thickness = 1.dp)
-
-                        if (latestDateTime != null) {
-                            DropdownMenuItem(
-                                text = {
-                                    Column {
-                                        Text("Load most recent", fontSize = 12.sp, fontWeight = FontWeight.Bold)
-                                        Text(latestDateTime, fontSize = 10.sp, color = Color(0xFF6B7280))
-                                    }
-                                },
-                                onClick = {
-                                    selectedDateTime = latestDateTime
-                                    expandedDropdown = false
-                                }
-                            )
-
-                            Divider(color = Color(0xFFE3E5E8), thickness = 1.dp)
-                        }
-
-                        allDateTimes.filterNot { it == latestDateTime }.forEach { dateTime ->
-                            DropdownMenuItem(
-                                text = {
-                                    Column {
-                                        Text("Load older input to modify", fontSize = 11.sp)
-                                        Text(dateTime, fontSize = 10.sp, color = Color(0xFF6B7280))
-                                    }
-                                },
-                                onClick = {
-                                    selectedDateTime = dateTime
-                                    expandedDropdown = false
-                                }
-                            )
-                        }
-                    }
-                }
-            }
-
-            if (selectedDateTime.isNotEmpty()) {
-                Text(
-                    text = "Viewing: $selectedDateTime",
-                    color = Color(0xFF6B7280),
-                    fontSize = 12.sp,
-                    modifier = Modifier.padding(bottom = 16.dp)
-                )
-            }
-
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(bottom = 16.dp),
-                horizontalArrangement = Arrangement.spacedBy(12.dp)
-            ) {
-                Card(
-                    modifier = Modifier
-                        .weight(1f)
-                        .height(100.dp),
-                    colors = CardDefaults.cardColors(containerColor = Color(0xFF6200EE))
-                ) {
-                    Column(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .padding(12.dp),
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                        verticalArrangement = Arrangement.Center
-                    ) {
-                        Text(
-                            text = "Current Net Worth",
-                            color = Color(0xFFE1BEE7),
-                            fontSize = 10.sp,
-                            fontWeight = FontWeight.SemiBold
-                        )
-                        Text(
-                            text = "€ ${"%.2f".format(netWorth)}",
-                            color = Color.White,
-                            fontSize = 24.sp,
-                            fontWeight = FontWeight.Bold,
-                            modifier = Modifier.padding(top = 6.dp)
-                        )
-                    }
-                }
-
-                Card(
-                    modifier = Modifier
-                        .weight(1f)
-                        .height(100.dp),
-                    colors = CardDefaults.cardColors(containerColor = Color(0xFF03DAC6))
-                ) {
-                    Column(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .padding(12.dp),
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                        verticalArrangement = Arrangement.Center
-                    ) {
-                        Text(
-                            text = "Assets",
-                            color = Color(0xFF00695C),
-                            fontSize = 10.sp,
-                            fontWeight = FontWeight.SemiBold
-                        )
-                        Text(
-                            text = "€ ${"%.2f".format(totalAssets)}",
-                            color = Color(0xFF00695C),
-                            fontSize = 20.sp,
-                            fontWeight = FontWeight.Bold,
-                            modifier = Modifier.padding(top = 6.dp)
-                        )
-                    }
-                }
-
-                Card(
-                    modifier = Modifier
-                        .weight(1f)
-                        .height(100.dp),
-                    colors = CardDefaults.cardColors(containerColor = Color(0xFFCF6679))
-                ) {
-                    Column(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .padding(12.dp),
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                        verticalArrangement = Arrangement.Center
-                    ) {
-                        Text(
-                            text = "Liabilities",
-                            color = Color.White,
-                            fontSize = 10.sp,
-                            fontWeight = FontWeight.SemiBold
-                        )
-                        Text(
-                            text = "€ ${"%.2f".format(totalLiabilities)}",
-                            color = Color.White,
-                            fontSize = 20.sp,
-                            fontWeight = FontWeight.Bold,
-                            modifier = Modifier.padding(top = 6.dp)
-                        )
-                    }
-                }
-            }
-
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(bottom = 16.dp),
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                Button(
-                    onClick = onAddEntry,
-                    modifier = Modifier.weight(1f),
-                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF6200EE))
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.Add,
-                        contentDescription = "Add",
-                        modifier = Modifier.size(18.dp),
-                        tint = Color.White
-                    )
-                    Text("Add", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 12.sp)
-                }
-
-                Button(
-                    onClick = onViewCharts,
-                    modifier = Modifier.weight(1f),
-                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF03DAC6))
-                ) {
-                    Text("Charts", color = Color.Black, fontWeight = FontWeight.Bold, fontSize = 12.sp)
-                }
-
-                Button(
-                    onClick = onImportData,
-                    modifier = Modifier.weight(1f),
-                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF2563EB))
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.UploadFile,
-                        contentDescription = "Import",
-                        modifier = Modifier.size(14.dp),
-                        tint = Color.White
-                    )
-                    Text("Import", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 11.sp)
-                }
-
-                Button(
-                    onClick = onDebug,
-                    modifier = Modifier.weight(1f),
-                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF6B7280))
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.BugReport,
-                        contentDescription = "Debug",
-                        modifier = Modifier.size(14.dp),
-                        tint = Color.White
-                    )
-                    Text("Debug", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 11.sp)
-                }
-            }
-        }
-
-        // Scrollable Content - LazyColumn with fillMaxHeight removed
+        // Everything scrolls together - Header + Content in one LazyColumn
         LazyColumn(
             modifier = Modifier
                 .fillMaxWidth()
-                .weight(1f)
+                .fillMaxHeight()
                 .background(Color(0xFFF2F3F5))
-                .padding(horizontal = 16.dp, vertical = 8.dp)
         ) {
+            // Header Section
+            item {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .background(Color(0xFFF2F3F5))
+                        .padding(16.dp)
+                ) {
+                    Text(
+                        text = "Net Worth Dashboard",
+                        color = Color(0xFF1F2328),
+                        fontSize = 28.sp,
+                        fontWeight = FontWeight.Bold,
+                        modifier = Modifier.padding(bottom = 12.dp)
+                    )
+
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(bottom = 16.dp),
+                        horizontalArrangement = Arrangement.spacedBy(12.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Box(
+                            modifier = Modifier
+                                .weight(1f)
+                                .wrapContentSize(Alignment.TopStart)
+                        ) {
+                            Button(
+                                onClick = { expandedDropdown = !expandedDropdown },
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .height(44.dp),
+                                colors = ButtonDefaults.buttonColors(
+                                    containerColor = Color(0xFFFFFFFF),
+                                    contentColor = Color(0xFF1F2328)
+                                ),
+                                shape = androidx.compose.foundation.shape.RoundedCornerShape(8.dp),
+                                border = androidx.compose.foundation.BorderStroke(1.dp, Color(0xFFE3E5E8))
+                            ) {
+                                Row(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(horizontal = 12.dp),
+                                    horizontalArrangement = Arrangement.SpaceBetween,
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    Text(
+                                        text = when {
+                                            selectedDateTime.isEmpty() -> "Select Date"
+                                            selectedDateTime == latestDateTime -> "Load most recent"
+                                            else -> "Load older input to modify"
+                                        },
+                                        fontSize = 12.sp,
+                                        fontWeight = FontWeight.SemiBold
+                                    )
+                                    Icon(
+                                        imageVector = Icons.Default.ArrowDropDown,
+                                        contentDescription = "Dropdown",
+                                        modifier = Modifier.size(20.dp)
+                                    )
+                                }
+                            }
+
+                            DropdownMenu(
+                                expanded = expandedDropdown,
+                                onDismissRequest = { expandedDropdown = false }
+                            ) {
+                                DropdownMenuItem(
+                                    text = { Text("Select Date", fontSize = 12.sp) },
+                                    onClick = {
+                                        selectedDateTime = ""
+                                        expandedDropdown = false
+                                    }
+                                )
+
+                                Divider(color = Color(0xFFE3E5E8), thickness = 1.dp)
+
+                                if (latestDateTime != null) {
+                                    DropdownMenuItem(
+                                        text = {
+                                            Column {
+                                                Text("Load most recent", fontSize = 12.sp, fontWeight = FontWeight.Bold)
+                                                Text(latestDateTime, fontSize = 10.sp, color = Color(0xFF6B7280))
+                                            }
+                                        },
+                                        onClick = {
+                                            selectedDateTime = latestDateTime
+                                            expandedDropdown = false
+                                        }
+                                    )
+
+                                    Divider(color = Color(0xFFE3E5E8), thickness = 1.dp)
+                                }
+
+                                allDateTimes.filterNot { it == latestDateTime }.forEach { dateTime ->
+                                    DropdownMenuItem(
+                                        text = {
+                                            Column {
+                                                Text("Load older input to modify", fontSize = 11.sp)
+                                                Text(dateTime, fontSize = 10.sp, color = Color(0xFF6B7280))
+                                            }
+                                        },
+                                        onClick = {
+                                            selectedDateTime = dateTime
+                                            expandedDropdown = false
+                                        }
+                                    )
+                                }
+                            }
+                        }
+                    }
+
+                    if (selectedDateTime.isNotEmpty()) {
+                        Text(
+                            text = "Viewing: $selectedDateTime",
+                            color = Color(0xFF6B7280),
+                            fontSize = 12.sp,
+                            modifier = Modifier.padding(bottom = 16.dp)
+                        )
+                    }
+
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(bottom = 16.dp),
+                        horizontalArrangement = Arrangement.spacedBy(12.dp)
+                    ) {
+                        Card(
+                            modifier = Modifier
+                                .weight(1f)
+                                .height(100.dp),
+                            colors = CardDefaults.cardColors(containerColor = Color(0xFF6200EE))
+                        ) {
+                            Column(
+                                modifier = Modifier
+                                    .fillMaxSize()
+                                    .padding(12.dp),
+                                horizontalAlignment = Alignment.CenterHorizontally,
+                                verticalArrangement = Arrangement.Center
+                            ) {
+                                Text(
+                                    text = "Current Net Worth",
+                                    color = Color(0xFFE1BEE7),
+                                    fontSize = 10.sp,
+                                    fontWeight = FontWeight.SemiBold
+                                )
+                                Text(
+                                    text = "€ ${"%.2f".format(netWorth)}",
+                                    color = Color.White,
+                                    fontSize = 24.sp,
+                                    fontWeight = FontWeight.Bold,
+                                    modifier = Modifier.padding(top = 6.dp)
+                                )
+                            }
+                        }
+
+                        Card(
+                            modifier = Modifier
+                                .weight(1f)
+                                .height(100.dp),
+                            colors = CardDefaults.cardColors(containerColor = Color(0xFF03DAC6))
+                        ) {
+                            Column(
+                                modifier = Modifier
+                                    .fillMaxSize()
+                                    .padding(12.dp),
+                                horizontalAlignment = Alignment.CenterHorizontally,
+                                verticalArrangement = Arrangement.Center
+                            ) {
+                                Text(
+                                    text = "Assets",
+                                    color = Color(0xFF00695C),
+                                    fontSize = 10.sp,
+                                    fontWeight = FontWeight.SemiBold
+                                )
+                                Text(
+                                    text = "€ ${"%.2f".format(totalAssets)}",
+                                    color = Color(0xFF00695C),
+                                    fontSize = 20.sp,
+                                    fontWeight = FontWeight.Bold,
+                                    modifier = Modifier.padding(top = 6.dp)
+                                )
+                            }
+                        }
+
+                        Card(
+                            modifier = Modifier
+                                .weight(1f)
+                                .height(100.dp),
+                            colors = CardDefaults.cardColors(containerColor = Color(0xFFCF6679))
+                        ) {
+                            Column(
+                                modifier = Modifier
+                                    .fillMaxSize()
+                                    .padding(12.dp),
+                                horizontalAlignment = Alignment.CenterHorizontally,
+                                verticalArrangement = Arrangement.Center
+                            ) {
+                                Text(
+                                    text = "Liabilities",
+                                    color = Color.White,
+                                    fontSize = 10.sp,
+                                    fontWeight = FontWeight.SemiBold
+                                )
+                                Text(
+                                    text = "€ ${"%.2f".format(totalLiabilities)}",
+                                    color = Color.White,
+                                    fontSize = 20.sp,
+                                    fontWeight = FontWeight.Bold,
+                                    modifier = Modifier.padding(top = 6.dp)
+                                )
+                            }
+                        }
+                    }
+
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(bottom = 16.dp),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        Button(
+                            onClick = onAddEntry,
+                            modifier = Modifier.weight(1f),
+                            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF6200EE))
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Add,
+                                contentDescription = "Add",
+                                modifier = Modifier.size(18.dp),
+                                tint = Color.White
+                            )
+                            Text("Add", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 12.sp)
+                        }
+
+                        Button(
+                            onClick = onViewCharts,
+                            modifier = Modifier.weight(1f),
+                            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF03DAC6))
+                        ) {
+                            Text("Charts", color = Color.Black, fontWeight = FontWeight.Bold, fontSize = 12.sp)
+                        }
+
+                        Button(
+                            onClick = onImportData,
+                            modifier = Modifier.weight(1f),
+                            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF2563EB))
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.UploadFile,
+                                contentDescription = "Import",
+                                modifier = Modifier.size(14.dp),
+                                tint = Color.White
+                            )
+                            Text("Import", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 11.sp)
+                        }
+
+                        Button(
+                            onClick = onDebug,
+                            modifier = Modifier.weight(1f),
+                            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF6B7280))
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.BugReport,
+                                contentDescription = "Debug",
+                                modifier = Modifier.size(14.dp),
+                                tint = Color.White
+                            )
+                            Text("Debug", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 11.sp)
+                        }
+                    }
+                }
+            }
+
             // Assets Section
             if (assetEntries.isNotEmpty()) {
                 item {
@@ -351,7 +352,9 @@ fun DashboardContent(
                         color = Color(0xFF03DAC6),
                         fontSize = 16.sp,
                         fontWeight = FontWeight.Bold,
-                        modifier = Modifier.padding(bottom = 12.dp, top = 8.dp)
+                        modifier = Modifier
+                            .padding(bottom = 12.dp, top = 8.dp)
+                            .padding(horizontal = 16.dp)
                     )
                 }
 
@@ -361,7 +364,8 @@ fun DashboardContent(
                     Card(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(bottom = 8.dp),
+                            .padding(bottom = 8.dp)
+                            .padding(horizontal = 16.dp),
                         colors = CardDefaults.cardColors(containerColor = Color(0xFFF9F9F9))
                     ) {
                         Row(
@@ -426,7 +430,9 @@ fun DashboardContent(
                         color = Color(0xFFCF6679),
                         fontSize = 16.sp,
                         fontWeight = FontWeight.Bold,
-                        modifier = Modifier.padding(bottom = 12.dp, top = 24.dp)
+                        modifier = Modifier
+                            .padding(bottom = 12.dp, top = 24.dp)
+                            .padding(horizontal = 16.dp)
                     )
                 }
 
@@ -436,7 +442,8 @@ fun DashboardContent(
                     Card(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(bottom = 8.dp),
+                            .padding(bottom = 8.dp)
+                            .padding(horizontal = 16.dp),
                         colors = CardDefaults.cardColors(containerColor = Color(0xFFF9F9F9))
                     ) {
                         Row(
