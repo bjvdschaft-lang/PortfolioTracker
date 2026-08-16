@@ -65,6 +65,7 @@ fun DashboardContent(
         Column(
             modifier = Modifier
                 .fillMaxWidth()
+                .wrapContentHeight()
                 .background(Color(0xFFF2F3F5))
                 .padding(16.dp)
         ) {
@@ -334,7 +335,7 @@ fun DashboardContent(
             }
         }
 
-        // Scrollable Content - LazyColumn
+        // Scrollable Content - LazyColumn with fillMaxHeight removed
         LazyColumn(
             modifier = Modifier
                 .fillMaxWidth()
@@ -515,5 +516,3 @@ fun DashboardContent(
         }
     }
 }
-
-
