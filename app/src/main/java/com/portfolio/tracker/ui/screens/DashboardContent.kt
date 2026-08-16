@@ -11,7 +11,6 @@ import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.UploadFile
 import androidx.compose.material.icons.filled.ArrowDropDown
-import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -24,9 +23,6 @@ import androidx.compose.ui.unit.sp
 import com.portfolio.tracker.data.entity.PortfolioEntryEntity
 import com.portfolio.tracker.data.repository.EntryRepository
 import kotlinx.coroutines.launch
-import java.time.LocalDate
-import java.time.YearMonth
-import java.time.format.DateTimeFormatter
 
 @Composable
 fun DashboardContent(
@@ -49,8 +45,6 @@ fun DashboardContent(
     var dropdownMode by remember { mutableStateOf("") } // "", "most_recent", "custom_date"
     var pickedDate by remember { mutableStateOf("") }
     var expandedDropdown by remember { mutableStateOf(false) }
-    var showDatePicker by remember { mutableStateOf(false) }
-    var currentMonth by remember { mutableStateOf(YearMonth.now()) }
 
     val displayedEntries = if (dropdownMode == "most_recent" && latestDateTime != null) {
         entries.filter { it.dateTime == latestDateTime }
@@ -298,7 +292,6 @@ fun DashboardContent(
                                 onClick = {
                                     dropdownMode = ""
                                     pickedDate = ""
-                                    showDatePicker = false
                                     expandedDropdown = false
                                 }
                             )
@@ -313,7 +306,6 @@ fun DashboardContent(
                                     onClick = {
                                         dropdownMode = "most_recent"
                                         pickedDate = ""
-                                        showDatePicker = false
                                         expandedDropdown = false
                                     }
                                 )
@@ -327,164 +319,29 @@ fun DashboardContent(
                                 },
                                 onClick = {
                                     dropdownMode = "custom_date"
-                                    showDatePicker = true
                                     expandedDropdown = false
                                 }
                             )
                         }
                     }
 
-                    // Date Picker Button (RIGHT)
-                    Box(
-                        modifier = Modifier.weight(1f)
-                    ) {
-                        Button(
-                            onClick = { showDatePicker = !showDatePicker },
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .height(44.dp),
-                            colors = ButtonDefaults.buttonColors(
-                                containerColor = Color(0xFF00BCD4),
-                                contentColor = Color.White
-                            ),
-                            shape = androidx.compose.foundation.shape.RoundedCornerShape(8.dp)
-                        ) {
-                            Row(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(horizontal = 8.dp),
-                                horizontalArrangement = Arrangement.SpaceBetween,
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
-                                Text(
-                                    text = if (pickedDate.isNotEmpty()) {
-                                        try {
-                                            val date = LocalDate.parse(pickedDate)
-                                            date.format(DateTimeFormatter.ofPattern("d MMM, yyyy"))
-                                        } catch (e: Exception) {
-                                            "Pick Date"
-                                        }
-                                    } else {
-                                        "Pick Date"
-                                    },
-                                    fontSize = 11.sp,
-                                    fontWeight = FontWeight.SemiBold
-                                )
-                                Icon(
-                                    imageVector = Icons.Default.DateRange,
-                                    contentDescription = "Calendar",
-                                    modifier = Modifier.size(18.dp)
-                                )
+                    // Date Input Field (RIGHT)
+                    OutlinedTextField(
+                        value = pickedDate,
+                        onValueChange = { newValue ->
+                            pickedDate = newValue
+                            if (newValue.isNotEmpty()) {
+                                dropdownMode = "custom_date"
                             }
-                        }
-
-                        if (showDatePicker) {
-                            Box(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .background(Color.White, shape = androidx.compose.foundation.shape.RoundedCornerShape(8.dp))
-                                    .padding(16.dp)
-                            ) {
-                                Column {
-                                    Row(
-                                        modifier = Modifier
-                                            .fillMaxWidth()
-                                            .padding(bottom = 16.dp),
-                                        horizontalArrangement = Arrangement.SpaceBetween,
-                                        verticalAlignment = Alignment.CenterVertically
-                                    ) {
-                                        Button(
-                                            onClick = { currentMonth = currentMonth.minusMonths(1) },
-                                            modifier = Modifier.size(36.dp),
-                                            shape = androidx.compose.foundation.shape.CircleShape,
-                                            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFE0E0E0))
-                                        ) {
-                                            Text("<", fontSize = 16.sp, color = Color.Black, fontWeight = FontWeight.Bold)
-                                        }
-
-                                        Text(
-                                            text = currentMonth.format(DateTimeFormatter.ofPattern("MMMM yyyy")),
-                                            fontSize = 14.sp,
-                                            fontWeight = FontWeight.Bold,
-                                            modifier = Modifier.weight(1f),
-                                            textAlign = androidx.compose.ui.text.style.TextAlign.Center
-                                        )
-
-                                        Button(
-                                            onClick = { currentMonth = currentMonth.plusMonths(1) },
-                                            modifier = Modifier.size(36.dp),
-                                            shape = androidx.compose.foundation.shape.CircleShape,
-                                            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFE0E0E0))
-                                        ) {
-                                            Text(">", fontSize = 16.sp, color = Color.Black, fontWeight = FontWeight.Bold)
-                                        }
-                                    }
-
-                                    // Calendar Grid
-                                    val firstDay = currentMonth.atDay(1)
-                                    val lastDay = currentMonth.atEndOfMonth()
-                                    val daysInMonth = lastDay.dayOfMonth
-                                    val startDayOfWeek = firstDay.dayOfWeek.value % 7 // 0 = Sunday
-
-                                    Column {
-                                        // Day headers
-                                        Row(
-                                            modifier = Modifier
-                                                .fillMaxWidth()
-                                                .padding(bottom = 8.dp),
-                                            horizontalArrangement = Arrangement.SpaceBetween
-                                        ) {
-                                            listOf("Su", "Mo", "Tu", "We", "Th", "Fr", "Sa").forEach { day ->
-                                                Text(
-                                                    text = day,
-                                                    fontSize = 10.sp,
-                                                    fontWeight = FontWeight.Bold,
-                                                    modifier = Modifier.weight(1f),
-                                                    textAlign = androidx.compose.ui.text.style.TextAlign.Center
-                                                )
-                                            }
-                                        }
-
-                                        // Calendar days
-                                        var dayCounter = 1
-                                        repeat(6) { week ->
-                                            Row(
-                                                modifier = Modifier
-                                                    .fillMaxWidth()
-                                                    .padding(bottom = 4.dp),
-                                                horizontalArrangement = Arrangement.SpaceBetween
-                                            ) {
-                                                repeat(7) { dayOfWeek ->
-                                                    val isCurrentWeek = (week * 7 + dayOfWeek) >= startDayOfWeek && dayCounter <= daysInMonth
-                                                    if (isCurrentWeek && dayCounter <= daysInMonth) {
-                                                        Button(
-                                                            onClick = {
-                                                                val selectedDate = currentMonth.atDay(dayCounter)
-                                                                pickedDate = selectedDate.toString()
-                                                                showDatePicker = false
-                                                            },
-                                                            modifier = Modifier
-                                                                .weight(1f)
-                                                                .height(36.dp),
-                                                            colors = ButtonDefaults.buttonColors(
-                                                                containerColor = if (pickedDate.startsWith(currentMonth.atDay(dayCounter).toString())) Color(0xFF00BCD4) else Color(0xFFF0F0F0),
-                                                                contentColor = if (pickedDate.startsWith(currentMonth.atDay(dayCounter).toString())) Color.White else Color.Black
-                                                            )
-                                                        ) {
-                                                            Text(dayCounter.toString(), fontSize = 10.sp, fontWeight = FontWeight.Bold)
-                                                        }
-                                                        dayCounter++
-                                                    } else {
-                                                        Spacer(modifier = Modifier.weight(1f))
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
+                        },
+                        modifier = Modifier
+                            .weight(1f)
+                            .height(44.dp),
+                        placeholder = { Text("YYYY-MM-DD", fontSize = 10.sp) },
+                        singleLine = true,
+                        textStyle = androidx.compose.material3.LocalTextStyle.current.copy(fontSize = 11.sp),
+                        shape = androidx.compose.foundation.shape.RoundedCornerShape(8.dp)
+                    )
                 }
             }
 
