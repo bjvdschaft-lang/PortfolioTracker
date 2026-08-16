@@ -44,14 +44,14 @@ fun DashboardContent(
     val allDateTimes = entries.map { it.dateTime }.distinct().sortedDescending()
     var selectedDateTime by remember { mutableStateOf(latestDateTime ?: "") }
     var expandedDropdown by remember { mutableStateOf(false) }
-    var showDatePicker by remember { mutableStateOf(false) }
+    var dropdownMode by remember { mutableStateOf("") } // "", "most_recent", "custom_date"
     var pickedDate by remember { mutableStateOf("") }
 
-    val displayedEntries = if (selectedDateTime.isNotEmpty()) {
-        entries.filter { it.dateTime == selectedDateTime }
-    } else if (pickedDate.isNotEmpty()) {
+    val displayedEntries = if (dropdownMode == "most_recent" && latestDateTime != null) {
+        entries.filter { it.dateTime == latestDateTime }
+    } else if (dropdownMode == "custom_date" && pickedDate.isNotEmpty()) {
         // Find closest date before pickedDate
-        val closestDateTime = allDateTimes.filter { it.startsWith(pickedDate.take(10)) || it < pickedDate }.maxOrNull()
+        val closestDateTime = allDateTimes.filter { it <= pickedDate }.maxOrNull()
         if (closestDateTime != null) {
             entries.filter { it.dateTime == closestDateTime }
         } else {
@@ -233,7 +233,7 @@ fun DashboardContent(
             }
         }
 
-        // Assets Section with Dropdown and Date Picker
+        // Date Selector and Dropdown - Above Assets
         if (assetEntries.isNotEmpty()) {
             item {
                 Row(
@@ -244,6 +244,25 @@ fun DashboardContent(
                     horizontalArrangement = Arrangement.spacedBy(12.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
+                    // Date Input Field
+                    OutlinedTextField(
+                        value = pickedDate,
+                        onValueChange = { 
+                            pickedDate = it
+                            if (it.isNotEmpty()) {
+                                dropdownMode = "custom_date"
+                            }
+                        },
+                        modifier = Modifier
+                            .weight(1f)
+                            .height(44.dp),
+                        placeholder = { Text("YYYY-MM-DD", fontSize = 10.sp) },
+                        singleLine = true,
+                        textStyle = androidx.compose.material3.LocalTextStyle.current.copy(fontSize = 11.sp),
+                        shape = androidx.compose.foundation.shape.RoundedCornerShape(8.dp)
+                    )
+
+                    // Dropdown Button
                     Box(
                         modifier = Modifier.weight(1f)
                     ) {
@@ -251,7 +270,7 @@ fun DashboardContent(
                             onClick = { expandedDropdown = !expandedDropdown },
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .height(40.dp),
+                                .height(44.dp),
                             colors = ButtonDefaults.buttonColors(
                                 containerColor = Color(0xFFFFFFFF),
                                 contentColor = Color(0xFF1F2328)
@@ -267,11 +286,10 @@ fun DashboardContent(
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
                                 Text(
-                                    text = when {
-                                        selectedDateTime.isEmpty() && pickedDate.isEmpty() -> "Select"
-                                        selectedDateTime == latestDateTime -> "Most recent"
-                                        pickedDate.isNotEmpty() -> "Custom date"
-                                        else -> "Older"
+                                    text = when (dropdownMode) {
+                                        "most_recent" -> "Most Recent"
+                                        "custom_date" -> "Custom Date"
+                                        else -> "Select"
                                     },
                                     fontSize = 11.sp,
                                     fontWeight = FontWeight.SemiBold
@@ -291,9 +309,8 @@ fun DashboardContent(
                             DropdownMenuItem(
                                 text = { Text("Select Date", fontSize = 12.sp) },
                                 onClick = {
-                                    selectedDateTime = ""
+                                    dropdownMode = ""
                                     pickedDate = ""
-                                    showDatePicker = false
                                     expandedDropdown = false
                                 }
                             )
@@ -306,9 +323,8 @@ fun DashboardContent(
                                         Text("Load most recent", fontSize = 12.sp, fontWeight = FontWeight.Bold)
                                     },
                                     onClick = {
-                                        selectedDateTime = latestDateTime
+                                        dropdownMode = "most_recent"
                                         pickedDate = ""
-                                        showDatePicker = false
                                         expandedDropdown = false
                                     }
                                 )
@@ -321,35 +337,26 @@ fun DashboardContent(
                                     Text("Load older input to modify", fontSize = 11.sp)
                                 },
                                 onClick = {
-                                    selectedDateTime = ""
-                                    showDatePicker = true
+                                    dropdownMode = "custom_date"
                                     expandedDropdown = false
                                 }
                             )
                         }
                     }
-
-                    if (showDatePicker) {
-                        OutlinedTextField(
-                            value = pickedDate,
-                            onValueChange = { pickedDate = it },
-                            modifier = Modifier
-                                .weight(1f)
-                                .height(40.dp),
-                            placeholder = { Text("YYYY-MM-DD", fontSize = 10.sp) },
-                            singleLine = true,
-                            textStyle = androidx.compose.material3.LocalTextStyle.current.copy(fontSize = 11.sp)
-                        )
-                    } else {
-                        Text(
-                            text = "Assets (${assetEntries.size})",
-                            color = Color(0xFF2D5016),
-                            fontSize = 16.sp,
-                            fontWeight = FontWeight.Bold,
-                            modifier = Modifier.weight(1f)
-                        )
-                    }
                 }
+            }
+
+            // Assets Section Header
+            item {
+                Text(
+                    text = "Assets (${assetEntries.size})",
+                    color = Color(0xFF2D5016),
+                    fontSize = 16.sp,
+                    fontWeight = FontWeight.Bold,
+                    modifier = Modifier
+                        .padding(horizontal = 16.dp)
+                        .padding(bottom = 12.dp)
+                )
             }
 
             items(assetEntries) { entry ->
