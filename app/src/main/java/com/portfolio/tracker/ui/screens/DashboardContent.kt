@@ -43,8 +43,16 @@ fun DashboardContent(
 
     val allDateTimes = entries.map { it.dateTime }.distinct().sortedDescending()
     var dropdownMode by remember { mutableStateOf("") } // "", "most_recent", "custom_date"
-    var pickedDate by remember { mutableStateOf("") }
+    var pickedMonth by remember { mutableStateOf("") }
+    var pickedDay by remember { mutableStateOf("") }
+    var pickedYear by remember { mutableStateOf("") }
     var expandedDropdown by remember { mutableStateOf(false) }
+
+    val pickedDate = if (pickedMonth.isNotEmpty() && pickedDay.isNotEmpty() && pickedYear.isNotEmpty()) {
+        String.format("%s-%s-%s", pickedYear, pickedMonth.padStart(2, '0'), pickedDay.padStart(2, '0'))
+    } else {
+        ""
+    }
 
     val displayedEntries = if (dropdownMode == "most_recent" && latestDateTime != null) {
         entries.filter { it.dateTime == latestDateTime }
@@ -291,7 +299,9 @@ fun DashboardContent(
                                 text = { Text("", fontSize = 12.sp) },
                                 onClick = {
                                     dropdownMode = ""
-                                    pickedDate = ""
+                                    pickedMonth = ""
+                                    pickedDay = ""
+                                    pickedYear = ""
                                     expandedDropdown = false
                                 }
                             )
@@ -305,7 +315,9 @@ fun DashboardContent(
                                     },
                                     onClick = {
                                         dropdownMode = "most_recent"
-                                        pickedDate = ""
+                                        pickedMonth = ""
+                                        pickedDay = ""
+                                        pickedYear = ""
                                         expandedDropdown = false
                                     }
                                 )
@@ -325,23 +337,70 @@ fun DashboardContent(
                         }
                     }
 
-                    // Date Input Field (RIGHT)
-                    OutlinedTextField(
-                        value = pickedDate,
-                        onValueChange = { newValue ->
-                            pickedDate = newValue
-                            if (newValue.isNotEmpty()) {
-                                dropdownMode = "custom_date"
-                            }
-                        },
+                    // Date Input Fields (RIGHT) - Month, Day, Year
+                    Row(
                         modifier = Modifier
-                            .weight(1f)
-                            .height(44.dp),
-                        placeholder = { Text("YYYY-MM-DD", fontSize = 10.sp) },
-                        singleLine = true,
-                        textStyle = androidx.compose.material3.LocalTextStyle.current.copy(fontSize = 11.sp),
-                        shape = androidx.compose.foundation.shape.RoundedCornerShape(8.dp)
-                    )
+                            .weight(1f),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        OutlinedTextField(
+                            value = pickedMonth,
+                            onValueChange = { newValue ->
+                                if (newValue.isEmpty() || newValue.toIntOrNull() in 1..12) {
+                                    pickedMonth = newValue
+                                    if (newValue.isNotEmpty()) {
+                                        dropdownMode = "custom_date"
+                                    }
+                                }
+                            },
+                            modifier = Modifier
+                                .weight(0.8f)
+                                .height(44.dp),
+                            placeholder = { Text("MM", fontSize = 9.sp) },
+                            singleLine = true,
+                            textStyle = androidx.compose.material3.LocalTextStyle.current.copy(fontSize = 11.sp),
+                            shape = androidx.compose.foundation.shape.RoundedCornerShape(8.dp)
+                        )
+
+                        OutlinedTextField(
+                            value = pickedDay,
+                            onValueChange = { newValue ->
+                                if (newValue.isEmpty() || newValue.toIntOrNull() in 1..31) {
+                                    pickedDay = newValue
+                                    if (newValue.isNotEmpty()) {
+                                        dropdownMode = "custom_date"
+                                    }
+                                }
+                            },
+                            modifier = Modifier
+                                .weight(0.8f)
+                                .height(44.dp),
+                            placeholder = { Text("DD", fontSize = 9.sp) },
+                            singleLine = true,
+                            textStyle = androidx.compose.material3.LocalTextStyle.current.copy(fontSize = 11.sp),
+                            shape = androidx.compose.foundation.shape.RoundedCornerShape(8.dp)
+                        )
+
+                        OutlinedTextField(
+                            value = pickedYear,
+                            onValueChange = { newValue ->
+                                if (newValue.isEmpty() || newValue.length <= 4) {
+                                    pickedYear = newValue
+                                    if (newValue.isNotEmpty()) {
+                                        dropdownMode = "custom_date"
+                                    }
+                                }
+                            },
+                            modifier = Modifier
+                                .weight(1f)
+                                .height(44.dp),
+                            placeholder = { Text("YYYY", fontSize = 9.sp) },
+                            singleLine = true,
+                            textStyle = androidx.compose.material3.LocalTextStyle.current.copy(fontSize = 11.sp),
+                            shape = androidx.compose.foundation.shape.RoundedCornerShape(8.dp)
+                        )
+                    }
                 }
             }
 
