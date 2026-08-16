@@ -10,9 +10,11 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.portfolio.tracker.data.entity.PortfolioEntryEntity
 import com.portfolio.tracker.data.repository.EntryRepository
+import com.portfolio.tracker.ui.navigation.NavGraph
 import com.portfolio.tracker.ui.screens.AddEntryContent
 import com.portfolio.tracker.ui.screens.ChartsContent
 import com.portfolio.tracker.ui.screens.DashboardContent
+import com.portfolio.tracker.ui.screens.DebugScreen
 import com.portfolio.tracker.ui.screens.ImportContent
 import com.portfolio.tracker.ui.theme.PortfolioTrackerTheme
 import kotlinx.coroutines.launch
@@ -34,27 +36,27 @@ class MainActivity : ComponentActivity() {
 
                 fun refresh() { entries = repository.getAllEntries() }
 
-                NavHost(navController = navController, startDestination = "dashboard") {
+                NavHost(navController = navController, startDestination = NavGraph.DASHBOARD) {
 
-                    composable("dashboard") {
+                    composable(NavGraph.DASHBOARD) {
                         DashboardContent(
                             entries = entries,
                             repository = repository,
-                            onAddEntry = { navController.navigate("add_entry") },
+                            onAddEntry = { navController.navigate(NavGraph.ADD_ENTRY) },
                             onEditEntry = { entry ->
                                 navController.currentBackStackEntry
                                     ?.savedStateHandle
                                     ?.set("editEntry", entry)
-                                navController.navigate("edit_entry")
+                                navController.navigate(NavGraph.EDIT_ENTRY)
                             },
-                            onViewCharts = { navController.navigate("charts") },
-                            onImportData = { navController.navigate("import") },
-                            onDebug = {},
+                            onViewCharts = { navController.navigate(NavGraph.CHARTS) },
+                            onImportData = { navController.navigate(NavGraph.IMPORT) },
+                            onDebug = { navController.navigate(NavGraph.DEBUG) },
                             onEntriesChanged = { refresh() }
                         )
                     }
 
-                    composable("add_entry") {
+                    composable(NavGraph.ADD_ENTRY) {
                         AddEntryContent(
                             existingEntry = null,
                             onSave = { entry ->
@@ -68,7 +70,7 @@ class MainActivity : ComponentActivity() {
                         )
                     }
 
-                    composable("edit_entry") {
+                    composable(NavGraph.EDIT_ENTRY) {
                         // Entry is stored on the dashboard back-stack entry before navigate()
                         val entry = navController.previousBackStackEntry
                             ?.savedStateHandle
@@ -86,11 +88,11 @@ class MainActivity : ComponentActivity() {
                         )
                     }
 
-                    composable("charts") {
+                    composable(NavGraph.CHARTS) {
                         ChartsContent(onBack = { navController.popBackStack() })
                     }
 
-                    composable("import") {
+                    composable(NavGraph.IMPORT) {
                         ImportContent(
                             onBack = { navController.popBackStack() },
                             onImported = { importedEntries ->
@@ -100,6 +102,13 @@ class MainActivity : ComponentActivity() {
                                     navController.popBackStack()
                                 }
                             }
+                        )
+                    }
+
+                    composable(NavGraph.DEBUG) {
+                        DebugScreen(
+                            entries = entries,
+                            onBack = { navController.popBackStack() }
                         )
                     }
                 }
