@@ -69,6 +69,7 @@ class MainActivity : ComponentActivity() {
                     }
 
                     composable("edit_entry") {
+                        // Entry is stored on the dashboard back-stack entry before navigate()
                         val entry = navController.previousBackStackEntry
                             ?.savedStateHandle
                             ?.get<PortfolioEntryEntity>("editEntry")
