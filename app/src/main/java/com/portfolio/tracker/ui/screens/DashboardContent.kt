@@ -366,7 +366,6 @@ fun DashboardContent(
                     ) {
                         Row(
                             modifier = Modifier
-                                .fillMaxWidth()
                                 .padding(8.dp)
                                 .horizontalScroll(rememberScrollState()),
                             horizontalArrangement = Arrangement.spacedBy(8.dp),
@@ -442,7 +441,6 @@ fun DashboardContent(
                     ) {
                         Row(
                             modifier = Modifier
-                                .fillMaxWidth()
                                 .padding(8.dp)
                                 .horizontalScroll(rememberScrollState()),
                             horizontalArrangement = Arrangement.spacedBy(8.dp),
