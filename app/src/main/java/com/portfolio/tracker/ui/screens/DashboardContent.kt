@@ -44,9 +44,19 @@ fun DashboardContent(
     val allDateTimes = entries.map { it.dateTime }.distinct().sortedDescending()
     var selectedDateTime by remember { mutableStateOf(latestDateTime ?: "") }
     var expandedDropdown by remember { mutableStateOf(false) }
+    var showDatePicker by remember { mutableStateOf(false) }
+    var pickedDate by remember { mutableStateOf("") }
 
     val displayedEntries = if (selectedDateTime.isNotEmpty()) {
         entries.filter { it.dateTime == selectedDateTime }
+    } else if (pickedDate.isNotEmpty()) {
+        // Find closest date before pickedDate
+        val closestDateTime = allDateTimes.filter { it.startsWith(pickedDate.take(10)) || it < pickedDate }.maxOrNull()
+        if (closestDateTime != null) {
+            entries.filter { it.dateTime == closestDateTime }
+        } else {
+            emptyList()
+        }
     } else {
         latestEntries
     }
@@ -106,7 +116,7 @@ fun DashboardContent(
                     modifier = Modifier
                         .weight(1f)
                         .height(80.dp),
-                    colors = CardDefaults.cardColors(containerColor = Color(0xFF03DAC6))
+                    colors = CardDefaults.cardColors(containerColor = Color(0x90A4DE6C))
                 ) {
                     Column(
                         modifier = Modifier
@@ -117,13 +127,13 @@ fun DashboardContent(
                     ) {
                         Text(
                             text = "Assets",
-                            color = Color(0xFF00695C),
+                            color = Color(0xFF2D5016),
                             fontSize = 9.sp,
                             fontWeight = FontWeight.SemiBold
                         )
                         Text(
                             text = "€ ${"%.2f".format(totalAssets)}",
-                            color = Color(0xFF00695C),
+                            color = Color(0xFF2D5016),
                             fontSize = 14.sp,
                             fontWeight = FontWeight.Bold,
                             modifier = Modifier.padding(top = 4.dp)
@@ -223,7 +233,7 @@ fun DashboardContent(
             }
         }
 
-        // Assets Section with Dropdown
+        // Assets Section with Dropdown and Date Picker
         if (assetEntries.isNotEmpty()) {
             item {
                 Row(
@@ -234,14 +244,6 @@ fun DashboardContent(
                     horizontalArrangement = Arrangement.spacedBy(12.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Text(
-                        text = "Assets (${assetEntries.size})",
-                        color = Color(0xFF03DAC6),
-                        fontSize = 16.sp,
-                        fontWeight = FontWeight.Bold,
-                        modifier = Modifier.weight(1f)
-                    )
-
                     Box(
                         modifier = Modifier.weight(1f)
                     ) {
@@ -266,8 +268,9 @@ fun DashboardContent(
                             ) {
                                 Text(
                                     text = when {
-                                        selectedDateTime.isEmpty() -> "Select"
+                                        selectedDateTime.isEmpty() && pickedDate.isEmpty() -> "Select"
                                         selectedDateTime == latestDateTime -> "Most recent"
+                                        pickedDate.isNotEmpty() -> "Custom date"
                                         else -> "Older"
                                     },
                                     fontSize = 11.sp,
@@ -289,6 +292,8 @@ fun DashboardContent(
                                 text = { Text("Select Date", fontSize = 12.sp) },
                                 onClick = {
                                     selectedDateTime = ""
+                                    pickedDate = ""
+                                    showDatePicker = false
                                     expandedDropdown = false
                                 }
                             )
@@ -298,13 +303,12 @@ fun DashboardContent(
                             if (latestDateTime != null) {
                                 DropdownMenuItem(
                                     text = {
-                                        Column {
-                                            Text("Load most recent", fontSize = 12.sp, fontWeight = FontWeight.Bold)
-                                            Text(latestDateTime, fontSize = 10.sp, color = Color(0xFF6B7280))
-                                        }
+                                        Text("Load most recent", fontSize = 12.sp, fontWeight = FontWeight.Bold)
                                     },
                                     onClick = {
                                         selectedDateTime = latestDateTime
+                                        pickedDate = ""
+                                        showDatePicker = false
                                         expandedDropdown = false
                                     }
                                 )
@@ -312,21 +316,38 @@ fun DashboardContent(
                                 Divider(color = Color(0xFFE3E5E8), thickness = 1.dp)
                             }
 
-                            allDateTimes.filterNot { it == latestDateTime }.forEach { dateTime ->
-                                DropdownMenuItem(
-                                    text = {
-                                        Column {
-                                            Text("Load older input to modify", fontSize = 11.sp)
-                                            Text(dateTime, fontSize = 10.sp, color = Color(0xFF6B7280))
-                                        }
-                                    },
-                                    onClick = {
-                                        selectedDateTime = dateTime
-                                        expandedDropdown = false
-                                    }
-                                )
-                            }
+                            DropdownMenuItem(
+                                text = {
+                                    Text("Load older input to modify", fontSize = 11.sp)
+                                },
+                                onClick = {
+                                    selectedDateTime = ""
+                                    showDatePicker = true
+                                    expandedDropdown = false
+                                }
+                            )
                         }
+                    }
+
+                    if (showDatePicker) {
+                        OutlinedTextField(
+                            value = pickedDate,
+                            onValueChange = { pickedDate = it },
+                            modifier = Modifier
+                                .weight(1f)
+                                .height(40.dp),
+                            placeholder = { Text("YYYY-MM-DD", fontSize = 10.sp) },
+                            singleLine = true,
+                            textStyle = androidx.compose.material3.LocalTextStyle.current.copy(fontSize = 11.sp)
+                        )
+                    } else {
+                        Text(
+                            text = "Assets (${assetEntries.size})",
+                            color = Color(0xFF2D5016),
+                            fontSize = 16.sp,
+                            fontWeight = FontWeight.Bold,
+                            modifier = Modifier.weight(1f)
+                        )
                     }
                 }
             }
@@ -385,7 +406,7 @@ fun DashboardContent(
                         )
                         Text(
                             text = "€ ${"%.2f".format(entry.convertedAmount)}",
-                            color = Color(0xFF03DAC6),
+                            color = Color(0xFF2D5016),
                             fontSize = 10.sp,
                             fontWeight = FontWeight.Bold,
                             modifier = Modifier.weight(1.2f),
