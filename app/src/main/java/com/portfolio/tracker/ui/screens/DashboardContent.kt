@@ -57,8 +57,13 @@ fun DashboardContent(
     val displayedEntries = if (dropdownMode == "most_recent" && latestDateTime != null) {
         entries.filter { it.dateTime == latestDateTime }
     } else if (dropdownMode == "custom_date" && pickedDate.isNotEmpty()) {
-        // Find closest date before pickedDate
-        val closestDateTime = allDateTimes.filter { it <= pickedDate }.maxOrNull()
+        // Find closest date before or equal to pickedDate (match by date part only)
+        val closestDateTime = allDateTimes.filter { dateTime ->
+            dateTime.startsWith(pickedDate)
+        }.maxOrNull() ?: allDateTimes.filter { dateTime ->
+            dateTime.substringBefore(" ").substringBefore("T") < pickedDate
+        }.maxOrNull()
+        
         if (closestDateTime != null) {
             entries.filter { it.dateTime == closestDateTime }
         } else {
