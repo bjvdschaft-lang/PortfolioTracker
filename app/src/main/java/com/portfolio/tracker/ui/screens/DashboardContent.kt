@@ -64,8 +64,9 @@ fun DashboardContent(
         ""
     }
 
-    val displayedEntries = if (dropdownMode == "most_recent" && latestDateTime != null) {
-        entries.filter { it.dateTime == latestDateTime }
+    // Find the exact matching date and update the display fields
+    val (displayedEntries, foundDate) = if (dropdownMode == "most_recent" && latestDateTime != null) {
+        Pair(entries.filter { it.dateTime == latestDateTime }, latestDateTime.substringBefore(" ").substringBefore("T"))
     } else if (dropdownMode == "custom_date" && pickedDate.isNotEmpty()) {
         // Find entries with dates before or equal to the picked date
         val filteredEntries = entries.filter { entry ->
@@ -77,14 +78,27 @@ fun DashboardContent(
         val maxDate = filteredEntries.maxByOrNull { it.dateTime }?.dateTime?.substringBefore(" ")?.substringBefore("T")
         
         if (maxDate != null) {
-            entries.filter { entry ->
+            val matchingEntries = entries.filter { entry ->
                 entry.dateTime.startsWith(maxDate)
             }
+            Pair(matchingEntries, maxDate)
         } else {
-            emptyList()
+            Pair(emptyList(), "")
         }
     } else {
-        latestEntries
+        Pair(latestEntries, "")
+    }
+
+    // Update the input fields to reflect the found date
+    LaunchedEffect(foundDate) {
+        if (foundDate.isNotEmpty() && dropdownMode == "custom_date") {
+            val parts = foundDate.split("-")
+            if (parts.size == 3) {
+                pickedYear = parts[0]
+                pickedMonth = parts[1]
+                pickedDay = parts[2].toIntOrNull()?.toString() ?: parts[2]
+            }
+        }
     }
 
     val assetEntries = displayedEntries.filter { it.type == "Assets" }.sortedBy { it.description }
@@ -387,7 +401,7 @@ fun DashboardContent(
                             ) {
                                 Text(
                                     text = displayedMonth.ifEmpty { "M" },
-                                    fontSize = 11.sp,
+                                    fontSize = 12.sp,
                                     fontWeight = FontWeight.SemiBold
                                 )
                                 Icon(
@@ -408,7 +422,7 @@ fun DashboardContent(
                                     onClick = {
                                         pickedMonth = monthNumbers[index]
                                         monthDropdownOpen = false
-                                        if (pickedMonth.isNotEmpty()) {
+                                        if (pickedMonth.isNotEmpty() && pickedDay.isNotEmpty() && pickedYear.isNotEmpty()) {
                                             dropdownMode = "custom_date"
                                         }
                                     }
@@ -423,7 +437,7 @@ fun DashboardContent(
                         onValueChange = { newValue ->
                             if (newValue.isEmpty() || (newValue.toIntOrNull() in 1..31 && newValue.length <= 2)) {
                                 pickedDay = newValue
-                                if (newValue.isNotEmpty()) {
+                                if (pickedMonth.isNotEmpty() && newValue.isNotEmpty() && pickedYear.isNotEmpty()) {
                                     dropdownMode = "custom_date"
                                 }
                             }
@@ -433,7 +447,7 @@ fun DashboardContent(
                             .height(44.dp),
                         placeholder = { Text("DD", fontSize = 9.sp) },
                         singleLine = true,
-                        textStyle = androidx.compose.material3.LocalTextStyle.current.copy(fontSize = 11.sp),
+                        textStyle = androidx.compose.material3.LocalTextStyle.current.copy(fontSize = 12.sp),
                         shape = androidx.compose.foundation.shape.RoundedCornerShape(8.dp)
                     )
 
@@ -462,7 +476,7 @@ fun DashboardContent(
                             ) {
                                 Text(
                                     text = pickedYear.ifEmpty { "YYYY" },
-                                    fontSize = 11.sp,
+                                    fontSize = 12.sp,
                                     fontWeight = FontWeight.SemiBold
                                 )
                                 Icon(
@@ -483,7 +497,7 @@ fun DashboardContent(
                                     onClick = {
                                         pickedYear = year
                                         yearDropdownOpen = false
-                                        if (pickedYear.isNotEmpty()) {
+                                        if (pickedMonth.isNotEmpty() && pickedDay.isNotEmpty() && year.isNotEmpty()) {
                                             dropdownMode = "custom_date"
                                         }
                                     }
