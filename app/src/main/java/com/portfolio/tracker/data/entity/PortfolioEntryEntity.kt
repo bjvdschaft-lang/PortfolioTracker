@@ -1,7 +1,9 @@
 package com.portfolio.tracker.data.entity
 
-// Plain data class - no Room/database annotations
-// Database can be properly configured later
+import android.os.Parcelable
+import kotlinx.parcelize.Parcelize
+
+@Parcelize
 data class PortfolioEntryEntity(
     val id: Int = 0,
     val type: String,
@@ -9,6 +11,6 @@ data class PortfolioEntryEntity(
     val description: String,
     val amount: Double,
     val currency: String,
-    val convertedAmount: String,
+    val convertedAmount: Double,
     val dateTime: String
-)
+) : Parcelable

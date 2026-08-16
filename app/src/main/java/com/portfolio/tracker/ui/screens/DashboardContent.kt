@@ -11,7 +11,7 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.BugReport
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
-import androidx.compose.material.icons.filled.UploadFile
+import androidx.compose.material.icons.filled.CloudUpload
 import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -33,7 +33,8 @@ fun DashboardContent(
     onEditEntry: (PortfolioEntryEntity) -> Unit,
     onViewCharts: () -> Unit,
     onImportData: () -> Unit,
-    onDebug: () -> Unit = {}
+    onDebug: () -> Unit = {},
+    onEntriesChanged: () -> Unit = {}
 ) {
     val latestDateTime = entries.maxByOrNull { it.dateTime }?.dateTime
     val latestEntries = if (latestDateTime != null) {
@@ -136,7 +137,7 @@ fun DashboardContent(
                             }
                         )
 
-                        Divider(color = Color(0xFFE3E5E8), thickness = 1.dp)
+                        HorizontalDivider(color = Color(0xFFE3E5E8), thickness = 1.dp)
 
                         if (latestDateTime != null) {
                             DropdownMenuItem(
@@ -152,7 +153,7 @@ fun DashboardContent(
                                 }
                             )
 
-                            Divider(color = Color(0xFFE3E5E8), thickness = 1.dp)
+                            HorizontalDivider(color = Color(0xFFE3E5E8), thickness = 1.dp)
                         }
 
                         allDateTimes.filterNot { it == latestDateTime }.forEach { dateTime ->
@@ -396,6 +397,7 @@ fun DashboardContent(
                                     onClick = {
                                         scope.launch {
                                             repository.deleteEntry(entry)
+                                            onEntriesChanged()
                                             showDeleteDialog = false
                                         }
                                     },
@@ -471,6 +473,7 @@ fun DashboardContent(
                                     onClick = {
                                         scope.launch {
                                             repository.deleteEntry(entry)
+                                            onEntriesChanged()
                                             showDeleteDialog = false
                                         }
                                     },
