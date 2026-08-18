@@ -336,7 +336,7 @@ fun DashboardContent(
                         onDismissRequest = { expandedDropdown = false }
                     ) {
                         DropdownMenuItem(
-                            text = { Text("", fontSize = 12.sp) },
+                            text = { Text("Clear all", fontSize = 11.sp) },
                             onClick = {
                                 dropdownMode = ""
                                 pickedMonth = ""
@@ -351,7 +351,7 @@ fun DashboardContent(
                         if (latestDateTime != null) {
                             DropdownMenuItem(
                                 text = {
-                                    Text("Load most recent", fontSize = 12.sp, fontWeight = FontWeight.Bold)
+                                    Text("Load most recent", fontSize = 11.sp)
                                 },
                                 onClick = {
                                     dropdownMode = "most_recent"
