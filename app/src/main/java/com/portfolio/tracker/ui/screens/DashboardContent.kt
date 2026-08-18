@@ -94,7 +94,8 @@ fun DashboardContent(
             Pair(emptyList(), "")
         }
     } else {
-        Pair(latestEntries, "")
+        // When dropdownMode is empty ("Clear screen" selected), show empty list
+        Pair(emptyList(), "")
     }
 
     // Update the input fields to reflect the found date (but only if user didn't manually input it)
@@ -336,7 +337,7 @@ fun DashboardContent(
                         onDismissRequest = { expandedDropdown = false }
                     ) {
                         DropdownMenuItem(
-                            text = { Text("Clear all", fontSize = 11.sp) },
+                            text = { Text("Clear screen", fontSize = 11.sp) },
                             onClick = {
                                 dropdownMode = ""
                                 pickedMonth = ""
