@@ -52,11 +52,15 @@ fun DashboardContent(
     var yearDropdownOpen by remember { mutableStateOf(false) }
 
     val currentYear = LocalDate.now().year
-    val months = listOf("J", "F", "M", "A", "M", "J", "J", "A", "S", "O", "N", "D")
+    val monthShortNames = listOf("Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec")
     val monthNumbers = listOf("01", "02", "03", "04", "05", "06", "07", "08", "09", "10", "11", "12")
     val years = (2000..currentYear).map { it.toString() }.sortedDescending()
 
-    val displayedMonth = if (pickedMonth.isNotEmpty()) months.getOrNull(pickedMonth.toIntOrNull()?.minus(1) ?: -1) ?: "" else ""
+    val displayedMonth = if (pickedMonth.isNotEmpty()) {
+        monthShortNames.getOrNull(pickedMonth.toIntOrNull()?.minus(1) ?: -1) ?: ""
+    } else {
+        ""
+    }
 
     val pickedDate = if (pickedMonth.isNotEmpty() && pickedDay.isNotEmpty() && pickedYear.isNotEmpty()) {
         String.format("%s-%s-%s", pickedYear, pickedMonth, pickedDay.padStart(2, '0'))
@@ -89,9 +93,9 @@ fun DashboardContent(
         Pair(latestEntries, "")
     }
 
-    // Update the input fields to reflect the found date
+    // Update the input fields to reflect the found date (but only if user didn't manually input it)
     LaunchedEffect(foundDate) {
-        if (foundDate.isNotEmpty() && dropdownMode == "custom_date") {
+        if (foundDate.isNotEmpty() && dropdownMode == "custom_date" && pickedDate != foundDate) {
             val parts = foundDate.split("-")
             if (parts.size == 3) {
                 pickedYear = parts[0]
@@ -400,7 +404,7 @@ fun DashboardContent(
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
                                 Text(
-                                    text = displayedMonth.ifEmpty { "M" },
+                                    text = displayedMonth.ifEmpty { "Mon" },
                                     fontSize = 12.sp,
                                     fontWeight = FontWeight.SemiBold
                                 )
@@ -416,7 +420,7 @@ fun DashboardContent(
                             expanded = monthDropdownOpen,
                             onDismissRequest = { monthDropdownOpen = false }
                         ) {
-                            months.forEachIndexed { index, month ->
+                            monthShortNames.forEachIndexed { index, month ->
                                 DropdownMenuItem(
                                     text = { Text(month, fontSize = 12.sp) },
                                     onClick = {
@@ -475,7 +479,7 @@ fun DashboardContent(
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
                                 Text(
-                                    text = pickedYear.ifEmpty { "YYYY" },
+                                    text = pickedYear.ifEmpty { "Year" },
                                     fontSize = 12.sp,
                                     fontWeight = FontWeight.SemiBold
                                 )
