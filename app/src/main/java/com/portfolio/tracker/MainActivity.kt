@@ -25,7 +25,14 @@ class MainActivity : ComponentActivity() {
         setContent {
             var currentScreen by remember { mutableStateOf("dashboard") }
             var selectedEntry by remember { mutableStateOf<PortfolioEntryEntity?>(null) }
-            val dbEntries by repository.getAllEntries().collectAsState(initial = emptyList())
+            val screensNeedingEntries = remember { setOf("dashboard", "charts", "debug") }
+            val dbEntries by produceState(initialValue = emptyList<PortfolioEntryEntity>(), key1 = currentScreen) {
+                if (currentScreen in screensNeedingEntries) {
+                    repository.getAllEntries().collect { value = it }
+                } else {
+                    value = emptyList()
+                }
+            }
 
             when (currentScreen) {
                 "dashboard" -> DashboardContent(
