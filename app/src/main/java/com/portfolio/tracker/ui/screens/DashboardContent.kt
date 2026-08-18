@@ -43,6 +43,12 @@ fun DashboardContent(
     }
 
     val allDateTimes = entries.map { it.dateTime }.distinct().sortedDescending()
+    
+    // Extract years from database entries
+    val availableYears = entries.map { 
+        it.dateTime.substringBefore(" ").substringBefore("T").substringBefore("-")
+    }.distinct().sorted().reversed()
+    
     var dropdownMode by remember { mutableStateOf("") } // "", "most_recent", "custom_date"
     var pickedMonth by remember { mutableStateOf("") } // "01" to "12"
     var pickedDay by remember { mutableStateOf("") }
@@ -51,10 +57,8 @@ fun DashboardContent(
     var monthDropdownOpen by remember { mutableStateOf(false) }
     var yearDropdownOpen by remember { mutableStateOf(false) }
 
-    val currentYear = LocalDate.now().year
     val monthShortNames = listOf("Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec")
     val monthNumbers = listOf("01", "02", "03", "04", "05", "06", "07", "08", "09", "10", "11", "12")
-    val years = (2000..currentYear).map { it.toString() }.sortedDescending()
 
     val displayedMonth = if (pickedMonth.isNotEmpty()) {
         monthShortNames.getOrNull(pickedMonth.toIntOrNull()?.minus(1) ?: -1) ?: ""
@@ -313,7 +317,7 @@ fun DashboardContent(
                             Text(
                                 text = when (dropdownMode) {
                                     "most_recent" -> "Load most recent"
-                                    "custom_date" -> "Load older input to modify"
+                                    "custom_date" -> "Load older input"
                                     else -> ""
                                 },
                                 fontSize = 11.sp,
@@ -363,7 +367,7 @@ fun DashboardContent(
 
                         DropdownMenuItem(
                             text = {
-                                Text("Load older input to modify", fontSize = 11.sp)
+                                Text("Load older input", fontSize = 11.sp)
                             },
                             onClick = {
                                 dropdownMode = "custom_date"
@@ -495,7 +499,7 @@ fun DashboardContent(
                             expanded = yearDropdownOpen,
                             onDismissRequest = { yearDropdownOpen = false }
                         ) {
-                            years.forEach { year ->
+                            availableYears.forEach { year ->
                                 DropdownMenuItem(
                                     text = { Text(year, fontSize = 12.sp) },
                                     onClick = {
