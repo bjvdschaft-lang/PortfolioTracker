@@ -6,11 +6,12 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.BugReport
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.PowerSettingsNew
 import androidx.compose.material.icons.filled.UploadFile
-import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -20,10 +21,67 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.window.Dialog
 import com.portfolio.tracker.data.entity.PortfolioEntryEntity
 import com.portfolio.tracker.data.repository.EntryRepository
 import kotlinx.coroutines.launch
 import java.time.LocalDate
+
+@Composable
+private fun ShutdownDialog(
+    onSave: () -> Unit,
+    onDoNotSave: () -> Unit,
+    onCancel: () -> Unit
+) {
+    Dialog(onDismissRequest = onCancel) {
+        Card(
+            shape = androidx.compose.foundation.shape.RoundedCornerShape(12.dp),
+            colors = CardDefaults.cardColors(containerColor = Color.White)
+        ) {
+            Column(
+                modifier = Modifier.padding(24.dp),
+                verticalArrangement = Arrangement.spacedBy(16.dp)
+            ) {
+                Text(
+                    text = "Exit App",
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 18.sp,
+                    color = Color(0xFF1F2328)
+                )
+                Text(
+                    text = "Do you want to save before exiting?",
+                    fontSize = 14.sp,
+                    color = Color(0xFF57606A)
+                )
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    Button(
+                        onClick = onSave,
+                        modifier = Modifier.weight(1f),
+                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF6200EE))
+                    ) {
+                        Text("Save", color = Color.White, fontSize = 12.sp)
+                    }
+                    Button(
+                        onClick = onDoNotSave,
+                        modifier = Modifier.weight(1f),
+                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFCF6679))
+                    ) {
+                        Text("Don't Save", color = Color.White, fontSize = 12.sp)
+                    }
+                    OutlinedButton(
+                        onClick = onCancel,
+                        modifier = Modifier.weight(1f)
+                    ) {
+                        Text("Cancel", fontSize = 12.sp)
+                    }
+                }
+            }
+        }
+    }
+}
 
 @Composable
 fun DashboardContent(
@@ -33,7 +91,8 @@ fun DashboardContent(
     onEditEntry: (PortfolioEntryEntity) -> Unit,
     onViewCharts: () -> Unit,
     onImportData: () -> Unit,
-    onDebug: () -> Unit = {}
+    onDebug: () -> Unit = {},
+    onShutdown: (() -> Unit)? = null
 ) {
     val latestDateTime = entries.maxByOrNull { it.dateTime }?.dateTime
     val latestEntries = if (latestDateTime != null) {
@@ -56,6 +115,7 @@ fun DashboardContent(
     var expandedDropdown by remember { mutableStateOf(false) }
     var monthDropdownOpen by remember { mutableStateOf(false) }
     var yearDropdownOpen by remember { mutableStateOf(false) }
+    var showShutdownDialog by remember { mutableStateOf(false) }
 
     val monthShortNames = listOf("Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec")
     val monthNumbers = listOf("01", "02", "03", "04", "05", "06", "07", "08", "09", "10", "11", "12")
@@ -118,6 +178,23 @@ fun DashboardContent(
     val netWorth = totalAssets - totalLiabilities
     val scope = rememberCoroutineScope()
 
+    if (showShutdownDialog && onShutdown != null) {
+        // Room auto-persists all data, so both Save and Do Not Save exit the app.
+        // The distinction is kept for UX convention.
+        ShutdownDialog(
+            onSave = {
+                showShutdownDialog = false
+                onShutdown()
+            },
+            onDoNotSave = {
+                showShutdownDialog = false
+                onShutdown()
+            },
+            onCancel = { showShutdownDialog = false }
+        )
+    }
+
+    Box(modifier = Modifier.fillMaxSize()) {
     // LazyColumn DIRECTLY - NO outer Column wrapper
     LazyColumn(
         modifier = Modifier
@@ -768,5 +845,22 @@ fun DashboardContent(
         item {
             Spacer(modifier = Modifier.height(16.dp))
         }
+    }
+
+    if (onShutdown != null) {
+        IconButton(
+            onClick = { showShutdownDialog = true },
+            modifier = Modifier
+                .align(Alignment.TopStart)
+                .padding(8.dp)
+        ) {
+            Icon(
+                imageVector = Icons.Default.PowerSettingsNew,
+                contentDescription = "Shutdown",
+                tint = Color(0xFFCF6679),
+                modifier = Modifier.size(28.dp)
+            )
+        }
+    }
     }
 }

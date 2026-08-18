@@ -35,7 +35,8 @@ class MainActivity : ComponentActivity() {
                     onEditEntry = { entry -> selectedEntry = entry; currentScreen = "add_entry" },
                     onViewCharts = { currentScreen = "charts" },
                     onImportData = { currentScreen = "import" },
-                    onDebug = { currentScreen = "debug" }
+                    onDebug = { currentScreen = "debug" },
+                    onShutdown = { finish() }
                 )
                 "add_entry" -> AddEntryContent(
                     repository = repository,
