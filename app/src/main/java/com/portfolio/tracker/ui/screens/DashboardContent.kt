@@ -170,8 +170,12 @@ fun DashboardContent(
         }
     }
 
-    val assetEntries = displayedEntries.filter { it.type == "Assets" }.sortedBy { it.description }
-    val liabilityEntries = displayedEntries.filter { it.type == "Liabilities" }.sortedBy { it.description }
+    val assetEntries = remember(displayedEntries) {
+        displayedEntries.filter { it.type == "Assets" }.sortedBy { it.description }
+    }
+    val liabilityEntries = remember(displayedEntries) {
+        displayedEntries.filter { it.type == "Liabilities" }.sortedBy { it.description }
+    }
 
     val totalAssets = assetEntries.sumOf { it.convertedAmount }
     val totalLiabilities = liabilityEntries.sumOf { it.convertedAmount }
@@ -634,7 +638,7 @@ fun DashboardContent(
                 )
             }
 
-            items(assetEntries) { entry ->
+            items(assetEntries, key = { it.entryId }) { entry ->
                 var showDeleteDialog by remember { mutableStateOf(false) }
 
                 Card(
@@ -749,7 +753,7 @@ fun DashboardContent(
                     )
                 }
 
-                items(liabilityEntries) { entry ->
+                items(liabilityEntries, key = { it.entryId }) { entry ->
                     var showDeleteDialog by remember { mutableStateOf(false) }
 
                     Card(
