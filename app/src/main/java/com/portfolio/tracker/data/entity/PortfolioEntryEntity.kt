@@ -5,7 +5,8 @@ import androidx.room.PrimaryKey
 
 @Entity(tableName = "portfolio_entries")
 data class PortfolioEntryEntity(
-    @PrimaryKey
+    @PrimaryKey(autoGenerate = true)
+    val id: Long = 0,
     val entryId: String,
     val dateTime: String,
     val type: String,
