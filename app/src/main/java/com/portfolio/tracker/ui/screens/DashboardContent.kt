@@ -108,8 +108,9 @@ fun DashboardContent(
         it.dateTime.substringBefore(" ").substringBefore("T").substringBefore("-")
     }.distinct().sorted().reversed()
     
-    var dropdownMode by remember { mutableStateOf("") } // "", "most_recent", "custom_date"
-    var pickedMonth by remember { mutableStateOf("") } // "01" to "12"
+    // FIXED: Default to showing all entries (empty dropdownMode)
+    var dropdownMode by remember { mutableStateOf("") }
+    var pickedMonth by remember { mutableStateOf("") }
     var pickedDay by remember { mutableStateOf("") }
     var pickedYear by remember { mutableStateOf("") }
     var expandedDropdown by remember { mutableStateOf(false) }
@@ -132,17 +133,15 @@ fun DashboardContent(
         ""
     }
 
-    // Find the exact matching date and update the display fields
+    // FIXED: Show ALL entries by default (dropdownMode == "")
     val (displayedEntries, foundDate) = if (dropdownMode == "most_recent" && latestDateTime != null) {
         Pair(entries.filter { it.dateTime == latestDateTime }, latestDateTime.substringBefore(" ").substringBefore("T"))
     } else if (dropdownMode == "custom_date" && pickedDate.isNotEmpty()) {
-        // Find entries with dates before or equal to the picked date
         val filteredEntries = entries.filter { entry ->
             val entryDate = entry.dateTime.substringBefore(" ").substringBefore("T")
             entryDate <= pickedDate
         }
         
-        // Find the maximum date that is <= pickedDate
         val maxDate = filteredEntries.maxByOrNull { it.dateTime }?.dateTime?.substringBefore(" ")?.substringBefore("T")
         
         if (maxDate != null) {
@@ -154,11 +153,10 @@ fun DashboardContent(
             Pair(emptyList(), "")
         }
     } else {
-        // When dropdownMode is empty ("Clear screen" selected), show empty list
-        Pair(emptyList(), "")
+        // FIXED: Show ALL entries when dropdownMode is "" (not empty list)
+        Pair(entries, "")
     }
 
-    // Update the input fields to reflect the found date (but only if user didn't manually input it)
     LaunchedEffect(foundDate) {
         if (foundDate.isNotEmpty() && dropdownMode == "custom_date" && pickedDate != foundDate) {
             val parts = foundDate.split("-")
@@ -179,8 +177,6 @@ fun DashboardContent(
     val scope = rememberCoroutineScope()
 
     if (showShutdownDialog && onShutdown != null) {
-        // Room auto-persists all data, so both Save and Do Not Save exit the app.
-        // The distinction is kept for UX convention.
         ShutdownDialog(
             onSave = {
                 showShutdownDialog = false
@@ -195,7 +191,6 @@ fun DashboardContent(
     }
 
     Column(modifier = Modifier.fillMaxSize()) {
-        // Top Bar with Shutdown Button
         if (onShutdown != null) {
             Row(
                 modifier = Modifier
@@ -221,13 +216,11 @@ fun DashboardContent(
             }
         }
 
-        // LazyColumn DIRECTLY - NO outer Column wrapper
         LazyColumn(
             modifier = Modifier
                 .fillMaxSize()
                 .background(Color(0xFFF2F3F5))
         ) {
-            // Stats Section at Top
             item {
                 Row(
                     modifier = Modifier
@@ -324,7 +317,6 @@ fun DashboardContent(
                 }
             }
 
-            // Action Buttons
             item {
                 Row(
                     modifier = Modifier
@@ -385,7 +377,6 @@ fun DashboardContent(
                 }
             }
 
-            // Date Selector and Dropdown - Above Assets
             item {
                 Row(
                     modifier = Modifier
@@ -395,7 +386,6 @@ fun DashboardContent(
                     horizontalArrangement = Arrangement.spacedBy(12.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    // Dropdown Button (LEFT)
                     Box(
                         modifier = Modifier.weight(1f)
                     ) {
@@ -422,7 +412,7 @@ fun DashboardContent(
                                     text = when (dropdownMode) {
                                         "most_recent" -> "Load most recent"
                                         "custom_date" -> "Load older input"
-                                        else -> ""
+                                        else -> "Show all entries"
                                     },
                                     fontSize = 11.sp,
                                     fontWeight = FontWeight.SemiBold
@@ -440,7 +430,7 @@ fun DashboardContent(
                             onDismissRequest = { expandedDropdown = false }
                         ) {
                             DropdownMenuItem(
-                                text = { Text("Clear screen", fontSize = 11.sp) },
+                                text = { Text("Show all entries", fontSize = 11.sp) },
                                 onClick = {
                                     dropdownMode = ""
                                     pickedMonth = ""
@@ -481,14 +471,12 @@ fun DashboardContent(
                         }
                     }
 
-                    // Date Input Fields (RIGHT) - Month (Dropdown), Day, Year (Dropdown)
                     Row(
                         modifier = Modifier
                             .weight(1f),
                         horizontalArrangement = Arrangement.spacedBy(8.dp),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        // Month Dropdown
                         Box(
                             modifier = Modifier.weight(0.8f)
                         ) {
@@ -543,7 +531,6 @@ fun DashboardContent(
                             }
                         }
 
-                        // Day TextField
                         OutlinedTextField(
                             value = pickedDay,
                             onValueChange = { newValue ->
@@ -563,7 +550,6 @@ fun DashboardContent(
                             shape = androidx.compose.foundation.shape.RoundedCornerShape(8.dp)
                         )
 
-                        // Year Dropdown
                         Box(
                             modifier = Modifier.weight(1f)
                         ) {
@@ -621,7 +607,6 @@ fun DashboardContent(
                 }
             }
 
-            // Assets Section Header
             item {
                 Text(
                     text = "Assets (${assetEntries.size})",
@@ -735,7 +720,6 @@ fun DashboardContent(
                 }
             }
 
-            // Liabilities Section
             if (liabilityEntries.isNotEmpty()) {
                 item {
                     Text(
