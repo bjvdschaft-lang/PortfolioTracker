@@ -6,6 +6,7 @@ import androidx.room.Room
 import androidx.room.RoomDatabase
 import com.portfolio.tracker.data.dao.EntryDao
 import com.portfolio.tracker.data.entity.PortfolioEntryEntity
+import android.util.Log
 
 @Database(entities = [PortfolioEntryEntity::class], version = 1, exportSchema = false)
 abstract class AppDatabase : RoomDatabase() {
@@ -17,11 +18,19 @@ abstract class AppDatabase : RoomDatabase() {
 
         fun getInstance(context: Context): AppDatabase {
             return instance ?: synchronized(this) {
-                instance ?: Room.databaseBuilder(
-                    context.applicationContext,
-                    AppDatabase::class.java,
-                    "portfolio_tracker_db"
-                ).build().also { instance = it }
+                instance ?: run {
+                    Log.d("AppDatabase", "Creating new database instance")
+                    val db = Room.databaseBuilder(
+                        context.applicationContext,
+                        AppDatabase::class.java,
+                        "portfolio_tracker_db"
+                    )
+                    .fallbackToDestructiveMigration()
+                    .build()
+                    Log.d("AppDatabase", "Database created: ${db.openHelper.writableDatabase.path}")
+                    instance = db
+                    db
+                }
             }
         }
     }
