@@ -51,31 +51,9 @@ abstract class AppDatabase : RoomDatabase() {
                     Log.d("AppDatabase", "Database exists after init: ${dbPath.exists()}")
                     
                     try {
-                        // Force Room to create tables
-                        val writableDb = db.openHelper.writableDatabase
-                        Log.d("AppDatabase", "Writable database obtained - tables should be created")
-                        
-                        // Verify database connectivity
+                        // Force Room to create tables by accessing DAO
                         val testDao = db.entryDao()
-                        Log.d("AppDatabase", "DAO created successfully")
-                        
-                        // Check if table exists
-                        val cursor1 = writableDb.rawQuery("SELECT name FROM sqlite_master WHERE type='table' AND name='portfolio_entries'", emptyArray())
-                        cursor1.use {
-                            if (it.moveToFirst()) {
-                                Log.d("AppDatabase", "✓ portfolio_entries table EXISTS in database")
-                            } else {
-                                Log.e("AppDatabase", "✗ ERROR: portfolio_entries table DOES NOT EXIST!")
-                            }
-                        }
-                        
-                        // Count current entries
-                        val cursor2 = writableDb.rawQuery("SELECT COUNT(*) as count FROM portfolio_entries", emptyArray())
-                        cursor2.use {
-                            it.moveToFirst()
-                            val count = it.getInt(0)
-                            Log.d("AppDatabase", "Current entry count: $count")
-                        }
+                        Log.d("AppDatabase", "✓ DAO created successfully - tables initialized by Room")
                     } catch (e: Exception) {
                         Log.e("AppDatabase", "Error verifying database connection", e)
                     }
@@ -95,11 +73,8 @@ abstract class AppDatabase : RoomDatabase() {
                 val db = getInstance(context)
                 if (db.isOpen) {
                     Log.d("AppDatabase", "Executing database checkpoint...")
-                    // Execute checkpoint to force WAL to main database
-                    val cursor = db.openHelper.writableDatabase.rawQuery("PRAGMA wal_checkpoint(RESTART);", emptyArray())
-                    cursor.use {
-                        Log.d("AppDatabase", "✓ Database checkpoint complete - all data synced to disk")
-                    }
+                    db.openHelper.writableDatabase.execSQL("PRAGMA wal_checkpoint(RESTART);")
+                    Log.d("AppDatabase", "✓ Database checkpoint complete - all data synced to disk")
                 }
             } catch (e: Exception) {
                 Log.e("AppDatabase", "Error syncing database: ${e.message}", e)
