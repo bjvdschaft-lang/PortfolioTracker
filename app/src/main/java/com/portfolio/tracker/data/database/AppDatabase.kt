@@ -21,9 +21,7 @@ abstract class AppDatabase : RoomDatabase() {
                     context.applicationContext,
                     AppDatabase::class.java,
                     "portfolio_tracker_db"
-                )
-                .fallbackToDestructiveMigration()
-                .build().also { instance = it }
+                ).build().also { instance = it }
             }
         }
     }
