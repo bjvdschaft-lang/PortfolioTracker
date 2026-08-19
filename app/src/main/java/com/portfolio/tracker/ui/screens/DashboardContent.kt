@@ -24,7 +24,7 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import com.portfolio.tracker.data.entity.PortfolioEntryEntity
 import com.portfolio.tracker.data.repository.EntryRepository
-import com.portfolio.tracker.data.preferences.PreferencesManager
+import android.util.Log
 import kotlinx.coroutines.launch
 import java.time.LocalDate
 
@@ -88,7 +88,6 @@ private fun ShutdownDialog(
 fun DashboardContent(
     entries: List<PortfolioEntryEntity>,
     repository: EntryRepository,
-    preferencesManager: PreferencesManager,
     onAddEntry: () -> Unit,
     onEditEntry: (PortfolioEntryEntity) -> Unit,
     onViewCharts: () -> Unit,
@@ -96,17 +95,7 @@ fun DashboardContent(
     onDebug: () -> Unit = {},
     onShutdown: (() -> Unit)? = null
 ) {
-    // Restore entries from SharedPreferences if database is empty
-    LaunchedEffect(Unit) {
-        if (entries.isEmpty()) {
-            val savedEntries = preferencesManager.getAllEntriesFromPrefs()
-            if (savedEntries.isNotEmpty()) {
-                for (entry in savedEntries) {
-                    repository.insertEntry(entry)
-                }
-            }
-        }
-    }
+    Log.d("DashboardContent", "Rendering dashboard with ${entries.size} entries")
 
     val latestDateTime = entries.maxByOrNull { it.dateTime }?.dateTime
     val latestEntries = if (latestDateTime != null) {
@@ -713,8 +702,9 @@ fun DashboardContent(
                             Button(
                                 onClick = {
                                     scope.launch {
+                                        Log.d("Dashboard", "Deleting entry: ${entry.description} (${entry.entryId})")
                                         repository.deleteEntry(entry)
-                                        preferencesManager.deleteEntry(entry.entryId)
+                                        Log.d("Dashboard", "Entry deleted successfully")
                                         showDeleteDialog = false
                                     }
                                 },
@@ -828,8 +818,9 @@ fun DashboardContent(
                                 Button(
                                     onClick = {
                                         scope.launch {
+                                            Log.d("Dashboard", "Deleting entry: ${entry.description} (${entry.entryId})")
                                             repository.deleteEntry(entry)
-                                            preferencesManager.deleteEntry(entry.entryId)
+                                            Log.d("Dashboard", "Entry deleted successfully")
                                             showDeleteDialog = false
                                         }
                                     },
