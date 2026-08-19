@@ -20,6 +20,7 @@ import androidx.compose.ui.zIndex
 import android.util.Log
 import com.portfolio.tracker.data.entity.PortfolioEntryEntity
 import com.portfolio.tracker.data.repository.EntryRepository
+import com.portfolio.tracker.data.preferences.PreferencesManager
 import kotlinx.coroutines.launch
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
@@ -36,6 +37,7 @@ val CURRENCIES = listOf("EUR", "USD", "GBP", "JPY", "CHF", "CAD", "AUD", "HUF", 
 @Composable
 fun AddEntryContent(
     repository: EntryRepository,
+    preferencesManager: PreferencesManager,
     entry: PortfolioEntryEntity? = null,
     onSave: () -> Unit,
     onBack: () -> Unit
@@ -380,7 +382,8 @@ fun AddEntryContent(
                                         )
                                         Log.d("AddEntry", "Updating entry: $updatedEntry")
                                         repository.updateEntry(updatedEntry)
-                                        Log.d("AddEntry", "Entry updated successfully")
+                                        preferencesManager.saveEntry(updatedEntry)
+                                        Log.d("AddEntry", "Entry updated successfully in DB and prefs")
                                     } else {
                                         val newEntry = PortfolioEntryEntity(
                                             entryId = java.util.UUID.randomUUID().toString(),
@@ -394,12 +397,11 @@ fun AddEntryContent(
                                         )
                                         Log.d("AddEntry", "Creating new entry: $newEntry")
                                         repository.insertEntry(newEntry)
-                                        Log.d("AddEntry", "Entry inserted successfully")
+                                        preferencesManager.saveEntry(newEntry)
+                                        Log.d("AddEntry", "Entry inserted successfully in DB and prefs")
                                     }
-                                    // CRITICAL FIX: Wait a bit to ensure database commit
-                                    kotlinx.coroutines.delay(500)
-                                    Log.d("AddEntry", "Database write complete, calling onSave()")
                                     isLoading = false
+                                    Log.d("AddEntry", "Calling onSave() callback")
                                     onSave()
                                 } catch (e: Exception) {
                                     val errorMsg = "Error saving entry: ${e.message}\n${e.stackTraceToString()}"
