@@ -19,7 +19,9 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.zIndex
 import com.portfolio.tracker.data.entity.PortfolioEntryEntity
 import com.portfolio.tracker.data.repository.EntryRepository
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 
@@ -353,7 +355,7 @@ fun AddEntryContent(
                         amount.toDoubleOrNull() ?: 0.0 <= 0 -> errorMessage = "Amount must be greater than 0"
                         else -> {
                             isLoading = true
-                            scope.launch {
+                            scope.launch(Dispatchers.IO) {
                                 try {
                                     if (isEditing) {
                                         val updatedEntry = entry!!.copy(
@@ -378,11 +380,15 @@ fun AddEntryContent(
                                         )
                                         repository.insertEntry(newEntry)
                                     }
-                                    isLoading = false
-                                    onSave()
+                                    withContext(Dispatchers.Main) {
+                                        isLoading = false
+                                        onSave()
+                                    }
                                 } catch (e: Exception) {
-                                    errorMessage = "Error saving entry: ${e.message}"
-                                    isLoading = false
+                                    withContext(Dispatchers.Main) {
+                                        errorMessage = "Error saving entry: ${e.message}"
+                                        isLoading = false
+                                    }
                                 }
                             }
                         }

@@ -19,7 +19,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.portfolio.tracker.data.repository.EntryRepository
 import com.portfolio.tracker.utils.ImportHelper
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 @Composable
 fun ImportScreen(
@@ -233,21 +235,27 @@ fun ImportScreen(
                         .drop(1)
                     totalEntries = lines.size
 
-                    scope.launch {
+                    scope.launch(Dispatchers.IO) {
                         try {
                             ImportHelper.importCsvData(
                                 csvContent = csvContent,
                                 repository = repository,
                                 onProgress = { current, _ ->
-                                    importProgress = current
+                                    withContext(Dispatchers.Main) {
+                                        importProgress = current
+                                    }
                                 }
                             )
-                            isImporting = false
-                            importSuccess = true
-                            csvContent = ""
+                            withContext(Dispatchers.Main) {
+                                isImporting = false
+                                importSuccess = true
+                                csvContent = ""
+                            }
                         } catch (e: Exception) {
-                            errorMessage = "Import failed: ${e.message}"
-                            isImporting = false
+                            withContext(Dispatchers.Main) {
+                                errorMessage = "Import failed: ${e.message}"
+                                isImporting = false
+                            }
                         }
                     }
                 },

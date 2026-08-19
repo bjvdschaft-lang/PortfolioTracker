@@ -37,7 +37,7 @@ object ImportHelper {
     suspend fun importCsvData(
         csvContent: String,
         repository: EntryRepository,
-        onProgress: (Int, Int) -> Unit = { _, _ -> }
+        onProgress: suspend (Int, Int) -> Unit = { _, _ -> }
     ) {
         val lines = csvContent.lines()
             .filter { it.isNotBlank() }
