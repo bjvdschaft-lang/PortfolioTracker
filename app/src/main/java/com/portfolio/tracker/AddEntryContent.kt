@@ -394,8 +394,9 @@ fun AddEntryContent(
                                         )
                                         Log.d("AddEntry", "Creating new entry: $newEntry")
                                         repository.insertEntry(newEntry)
-                                        Log.d("AddEntry", "Entry inserted successfully")
+                                        Log.d("AddEntry", "Entry inserted successfully - waiting for UI update")
                                     }
+                                    // Wait for the database write to complete before navigating away
                                     isLoading = false
                                     Log.d("AddEntry", "Calling onSave() callback")
                                     onSave()
