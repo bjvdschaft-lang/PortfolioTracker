@@ -20,20 +20,28 @@ class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        Log.d("MainActivity", "onCreate called")
+        Log.d("MainActivity", "=== onCreate called ===")
 
         val database = AppDatabase.getInstance(this)
-        // Pass context to repository so it can sync database after operations
         repository = EntryRepository(database.entryDao(), this)
-        Log.d("MainActivity", "Repository initialized with database sync capability")
+        Log.d("MainActivity", "Repository initialized")
 
         setContent {
             Log.d("MainActivity", "setContent called, creating UI")
             var currentScreen by remember { mutableStateOf("dashboard") }
             var selectedEntry by remember { mutableStateOf<PortfolioEntryEntity?>(null) }
             
+            // CRITICAL: Collect entries - this triggers database query
             val dbEntries by repository.getAllEntries().collectAsState(initial = emptyList())
+            
             Log.d("MainActivity", "Collected ${dbEntries.size} entries from database")
+            if (dbEntries.isNotEmpty()) {
+                dbEntries.forEach { entry ->
+                    Log.d("MainActivity", "  - Entry: ${entry.description} (€${entry.convertedAmount})")
+                }
+            } else {
+                Log.d("MainActivity", "  No entries found in database")
+            }
 
             when (currentScreen) {
                 "dashboard" -> DashboardContent(
