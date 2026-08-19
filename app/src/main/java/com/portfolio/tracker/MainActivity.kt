@@ -59,17 +59,17 @@ class MainActivity : ComponentActivity() {
                 )
                 "charts" -> ChartsScreen(
                     entries = dbEntries,
-                    onBack = { navigateToDashboard() }
+                    onBack = { currentScreen = "dashboard" }
                 )
                 "import" -> ImportScreen(
                     repository = repository,
-                    onBack = { navigateToDashboard() },
+                    onBack = { currentScreen = "dashboard" },
                     onImportComplete = { navigateToDashboard() }
                 )
                 "debug" -> DebugScreen(
                     entries = dbEntries,
                     repository = repository,
-                    onBack = { navigateToDashboard() }
+                    onBack = { currentScreen = "dashboard" }
                 )
             }
         }
