@@ -9,7 +9,6 @@ import androidx.compose.ui.Modifier
 import com.portfolio.tracker.data.database.AppDatabase
 import com.portfolio.tracker.data.entity.PortfolioEntryEntity
 import com.portfolio.tracker.data.repository.EntryRepository
-import com.portfolio.tracker.data.preferences.PreferencesManager
 import com.portfolio.tracker.ui.screens.DashboardContent
 import com.portfolio.tracker.ui.screens.ChartsScreen
 import com.portfolio.tracker.ui.screens.ImportScreen
@@ -18,13 +17,11 @@ import kotlinx.coroutines.launch
 
 class MainActivity : ComponentActivity() {
     private lateinit var repository: EntryRepository
-    private lateinit var preferencesManager: PreferencesManager
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         Log.d("MainActivity", "onCreate called")
 
-        preferencesManager = PreferencesManager(this)
         val database = AppDatabase.getInstance(this)
         repository = EntryRepository(database.entryDao())
 
@@ -40,7 +37,6 @@ class MainActivity : ComponentActivity() {
                 "dashboard" -> DashboardContent(
                     entries = dbEntries,
                     repository = repository,
-                    preferencesManager = preferencesManager,
                     onAddEntry = { currentScreen = "add_entry"; selectedEntry = null },
                     onEditEntry = { entry -> selectedEntry = entry; currentScreen = "add_entry" },
                     onViewCharts = { currentScreen = "charts" },
@@ -53,7 +49,6 @@ class MainActivity : ComponentActivity() {
                 )
                 "add_entry" -> AddEntryContent(
                     repository = repository,
-                    preferencesManager = preferencesManager,
                     entry = selectedEntry,
                     onSave = { currentScreen = "dashboard"; selectedEntry = null },
                     onBack = { currentScreen = "dashboard"; selectedEntry = null }
@@ -64,14 +59,12 @@ class MainActivity : ComponentActivity() {
                 )
                 "import" -> ImportScreen(
                     repository = repository,
-                    preferencesManager = preferencesManager,
                     onBack = { currentScreen = "dashboard" },
                     onImportComplete = { currentScreen = "dashboard" }
                 )
                 "debug" -> DebugScreen(
                     entries = dbEntries,
                     repository = repository,
-                    preferencesManager = preferencesManager,
                     onBack = { currentScreen = "dashboard" }
                 )
             }
