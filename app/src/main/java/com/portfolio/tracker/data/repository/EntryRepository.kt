@@ -1,11 +1,13 @@
 package com.portfolio.tracker.data.repository
 
 import com.portfolio.tracker.data.dao.EntryDao
+import com.portfolio.tracker.data.database.AppDatabase
 import com.portfolio.tracker.data.entity.PortfolioEntryEntity
 import kotlinx.coroutines.flow.Flow
 import android.util.Log
+import android.content.Context
 
-class EntryRepository(private val entryDao: EntryDao) {
+class EntryRepository(private val entryDao: EntryDao, private val context: Context? = null) {
     private val TAG = "EntryRepository"
 
     fun getAllEntries(): Flow<List<PortfolioEntryEntity>> {
@@ -29,6 +31,11 @@ class EntryRepository(private val entryDao: EntryDao) {
             Log.d(TAG, "✓ Entry inserted successfully into database (row ID: $rowId)")
             if (rowId < 0) {
                 Log.e(TAG, "✗ Insert returned negative row ID: $rowId")
+            } else {
+                // Force sync to disk after insert
+                Log.d(TAG, "Syncing database to disk...")
+                context?.let { AppDatabase.syncDatabase(it) }
+                Log.d(TAG, "✓ Database synced - data is now persistent")
             }
         } catch (e: Exception) {
             Log.e(TAG, "✗ Error inserting entry: ${e.message}", e)
@@ -57,6 +64,10 @@ class EntryRepository(private val entryDao: EntryDao) {
                 insertEntry(entry)
             } else {
                 Log.d(TAG, "✓ Update successful, $rowsUpdated row(s) modified")
+                // Force sync to disk after update
+                Log.d(TAG, "Syncing database to disk...")
+                context?.let { AppDatabase.syncDatabase(it) }
+                Log.d(TAG, "✓ Database synced - data is now persistent")
             }
         } catch (e: Exception) {
             Log.e(TAG, "✗ Error updating entry: ${e.message}", e)
@@ -78,6 +89,10 @@ class EntryRepository(private val entryDao: EntryDao) {
                 Log.w(TAG, "  - Check if entry was previously inserted")
             } else {
                 Log.d(TAG, "✓ Delete successful, $rowsDeleted row(s) removed")
+                // Force sync to disk after delete
+                Log.d(TAG, "Syncing database to disk...")
+                context?.let { AppDatabase.syncDatabase(it) }
+                Log.d(TAG, "✓ Database synced - data is now persistent")
             }
         } catch (e: Exception) {
             Log.e(TAG, "✗ Error deleting entry: ${e.message}", e)
@@ -109,6 +124,10 @@ class EntryRepository(private val entryDao: EntryDao) {
         try {
             val rowsDeleted = entryDao.clearAll()
             Log.d(TAG, "✓ All entries cleared successfully ($rowsDeleted rows deleted)")
+            // Force sync to disk after clear
+            Log.d(TAG, "Syncing database to disk...")
+            context?.let { AppDatabase.syncDatabase(it) }
+            Log.d(TAG, "✓ Database synced - data is now persistent")
         } catch (e: Exception) {
             Log.e(TAG, "✗ Error clearing all entries: ${e.message}", e)
             throw e
