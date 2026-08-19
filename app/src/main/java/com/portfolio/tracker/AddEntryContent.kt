@@ -394,11 +394,12 @@ fun AddEntryContent(
                                         )
                                         Log.d("AddEntry", "Creating new entry: $newEntry")
                                         repository.insertEntry(newEntry)
-                                        Log.d("AddEntry", "Entry inserted successfully - waiting for UI update")
+                                        Log.d("AddEntry", "Entry inserted successfully")
                                     }
-                                    // Wait for the database write to complete before navigating away
+                                    // CRITICAL FIX: Wait a bit to ensure database commit
+                                    kotlinx.coroutines.delay(500)
+                                    Log.d("AddEntry", "Database write complete, calling onSave()")
                                     isLoading = false
-                                    Log.d("AddEntry", "Calling onSave() callback")
                                     onSave()
                                 } catch (e: Exception) {
                                     val errorMsg = "Error saving entry: ${e.message}\n${e.stackTraceToString()}"
