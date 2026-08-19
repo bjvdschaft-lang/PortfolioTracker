@@ -19,6 +19,7 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
+        // Force new database instance each time
         val database = AppDatabase.getInstance(this)
         repository = EntryRepository(database.entryDao())
 
@@ -26,7 +27,7 @@ class MainActivity : ComponentActivity() {
             var currentScreen by remember { mutableStateOf("dashboard") }
             var selectedEntry by remember { mutableStateOf<PortfolioEntryEntity?>(null) }
             
-            // Always collect data from the Flow
+            // Always collect data from the Flow - fresh query each recomposition
             val dbEntries by repository.getAllEntries().collectAsState(initial = emptyList())
 
             when (currentScreen) {
