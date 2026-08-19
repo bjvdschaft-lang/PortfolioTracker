@@ -60,7 +60,7 @@ abstract class AppDatabase : RoomDatabase() {
                         Log.d("AppDatabase", "DAO created successfully")
                         
                         // Check if table exists
-                        writableDb.query("SELECT name FROM sqlite_master WHERE type='table' AND name='portfolio_entries'", null).use { cursor ->
+                        writableDb.rawQuery("SELECT name FROM sqlite_master WHERE type='table' AND name='portfolio_entries'", emptyArray()).use { cursor ->
                             if (cursor.moveToFirst()) {
                                 Log.d("AppDatabase", "✓ portfolio_entries table EXISTS in database")
                             } else {
@@ -69,7 +69,7 @@ abstract class AppDatabase : RoomDatabase() {
                         }
                         
                         // Count current entries
-                        writableDb.query("SELECT COUNT(*) as count FROM portfolio_entries", null).use { cursor ->
+                        writableDb.rawQuery("SELECT COUNT(*) as count FROM portfolio_entries", emptyArray()).use { cursor ->
                             cursor.moveToFirst()
                             val count = cursor.getInt(0)
                             Log.d("AppDatabase", "Current entry count: $count")
@@ -95,7 +95,7 @@ abstract class AppDatabase : RoomDatabase() {
                     Log.d("AppDatabase", "Executing database checkpoint...")
                     // Execute checkpoint to force WAL to main database
                     db.openHelper.writableDatabase.use { writableDb ->
-                        writableDb.query("PRAGMA wal_checkpoint(RESTART);", null).use { cursor ->
+                        writableDb.rawQuery("PRAGMA wal_checkpoint(RESTART);", emptyArray()).use { cursor ->
                             Log.d("AppDatabase", "✓ Database checkpoint complete - all data synced to disk")
                         }
                     }
