@@ -26,13 +26,8 @@ class MainActivity : ComponentActivity() {
             var currentScreen by remember { mutableStateOf("dashboard") }
             var selectedEntry by remember { mutableStateOf<PortfolioEntryEntity?>(null) }
             
-            // Only collect data when on screens that display entries
-            val dbEntries by if (currentScreen in listOf("dashboard", "charts", "debug")) {
-                repository.getAllEntries().collectAsState(initial = emptyList())
-            } else {
-                // Return a mutableStateOf that emits empty list
-                mutableStateOf(emptyList<PortfolioEntryEntity>())
-            }
+            // Always collect data from the Flow
+            val dbEntries by repository.getAllEntries().collectAsState(initial = emptyList())
 
             when (currentScreen) {
                 "dashboard" -> DashboardContent(
