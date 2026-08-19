@@ -26,11 +26,14 @@ class MainActivity : ComponentActivity() {
             var currentScreen by remember { mutableStateOf("dashboard") }
             var selectedEntry by remember { mutableStateOf<PortfolioEntryEntity?>(null) }
             
-            // Only collect data when on screens that need it
-            val dbEntries by if (currentScreen in listOf("dashboard", "charts", "debug")) {
-                repository.getAllEntries().collectAsState(initial = emptyList())
-            } else {
-                remember { mutableStateOf(emptyList<PortfolioEntryEntity>()) }
+            // Collect data when on dashboard, charts, or debug screens
+            // Automatically stops and restarts when currentScreen changes
+            val dbEntries by remember(currentScreen) {
+                if (currentScreen in listOf("dashboard", "charts", "debug")) {
+                    repository.getAllEntries().collectAsState(initial = emptyList())
+                } else {
+                    mutableStateOf(emptyList<PortfolioEntryEntity>())
+                }
             }
 
             when (currentScreen) {
