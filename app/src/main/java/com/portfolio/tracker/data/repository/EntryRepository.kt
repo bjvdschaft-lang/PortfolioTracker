@@ -25,8 +25,11 @@ class EntryRepository(private val entryDao: EntryDao) {
         Log.d(TAG, "DateTime: ${entry.dateTime}")
         
         try {
-            entryDao.insertEntry(entry)
-            Log.d(TAG, "✓ Entry inserted successfully into database")
+            val rowId = entryDao.insertEntry(entry)
+            Log.d(TAG, "✓ Entry inserted successfully into database (row ID: $rowId)")
+            if (rowId < 0) {
+                Log.e(TAG, "✗ Insert returned negative row ID: $rowId")
+            }
         } catch (e: Exception) {
             Log.e(TAG, "✗ Error inserting entry: ${e.message}", e)
             throw e
@@ -44,9 +47,16 @@ class EntryRepository(private val entryDao: EntryDao) {
         
         try {
             val rowsUpdated = entryDao.updateEntry(entry)
-            Log.d(TAG, "✓ Entry updated successfully (rows affected: $rowsUpdated)")
+            Log.d(TAG, "✓ Entry update attempted (rows affected: $rowsUpdated)")
             if (rowsUpdated == 0) {
-                Log.w(TAG, "⚠ Warning: Update affected 0 rows. Entry may not exist in database.")
+                Log.w(TAG, "⚠ WARNING: Update affected 0 rows!")
+                Log.w(TAG, "  - Entry may not exist in database")
+                Log.w(TAG, "  - Check if entry was previously inserted")
+                Log.w(TAG, "  - Attempting INSERT instead...")
+                // Fallback to insert if update found nothing
+                insertEntry(entry)
+            } else {
+                Log.d(TAG, "✓ Update successful, $rowsUpdated row(s) modified")
             }
         } catch (e: Exception) {
             Log.e(TAG, "✗ Error updating entry: ${e.message}", e)
@@ -61,9 +71,13 @@ class EntryRepository(private val entryDao: EntryDao) {
         
         try {
             val rowsDeleted = entryDao.deleteEntry(entry)
-            Log.d(TAG, "✓ Entry deleted successfully (rows affected: $rowsDeleted)")
+            Log.d(TAG, "✓ Entry delete attempted (rows affected: $rowsDeleted)")
             if (rowsDeleted == 0) {
-                Log.w(TAG, "⚠ Warning: Delete affected 0 rows. Entry may not exist in database.")
+                Log.w(TAG, "⚠ WARNING: Delete affected 0 rows!")
+                Log.w(TAG, "  - Entry may not exist in database")
+                Log.w(TAG, "  - Check if entry was previously inserted")
+            } else {
+                Log.d(TAG, "✓ Delete successful, $rowsDeleted row(s) removed")
             }
         } catch (e: Exception) {
             Log.e(TAG, "✗ Error deleting entry: ${e.message}", e)
@@ -93,8 +107,8 @@ class EntryRepository(private val entryDao: EntryDao) {
         Log.w(TAG, "⚠ WARNING: About to delete ALL entries from database!")
         
         try {
-            entryDao.clearAll()
-            Log.d(TAG, "✓ All entries cleared successfully")
+            val rowsDeleted = entryDao.clearAll()
+            Log.d(TAG, "✓ All entries cleared successfully ($rowsDeleted rows deleted)")
         } catch (e: Exception) {
             Log.e(TAG, "✗ Error clearing all entries: ${e.message}", e)
             throw e
