@@ -19,15 +19,24 @@ abstract class AppDatabase : RoomDatabase() {
         fun getInstance(context: Context): AppDatabase {
             return instance ?: synchronized(this) {
                 instance ?: run {
-                    Log.d("AppDatabase", "Creating new database instance")
+                    Log.d("AppDatabase", "Creating new database instance with WAL enabled")
                     val db = Room.databaseBuilder(
                         context.applicationContext,
                         AppDatabase::class.java,
                         "portfolio_tracker_db"
                     )
                     .fallbackToDestructiveMigration()
+                    .enableMultiInstanceInvalidation()
                     .build()
-                    Log.d("AppDatabase", "Database created: ${db.openHelper.writableDatabase.path}")
+                    
+                    // Enable WAL and ensure data is synced to disk
+                    db.openHelper.writableDatabase.apply {
+                        // Enable WAL (Write-Ahead Logging) for better reliability
+                        enableWriteAheadLogging()
+                        Log.d("AppDatabase", "Database path: ${path}")
+                        Log.d("AppDatabase", "WAL enabled: ${isWriteAheadLoggingEnabled}")
+                    }
+                    
                     instance = db
                     db
                 }
