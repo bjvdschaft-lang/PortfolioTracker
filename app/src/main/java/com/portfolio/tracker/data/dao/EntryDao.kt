@@ -23,4 +23,10 @@ interface EntryDao {
 
     @Query("DELETE FROM portfolio_entries")
     suspend fun clearAll()
+
+    // Transaction for batch operations
+    @Transaction
+    suspend fun insertEntries(entries: List<PortfolioEntryEntity>) {
+        entries.forEach { insertEntry(it) }
+    }
 }
