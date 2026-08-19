@@ -20,7 +20,6 @@ import androidx.compose.ui.zIndex
 import android.util.Log
 import com.portfolio.tracker.data.entity.PortfolioEntryEntity
 import com.portfolio.tracker.data.repository.EntryRepository
-import com.portfolio.tracker.data.preferences.PreferencesManager
 import kotlinx.coroutines.launch
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
@@ -37,7 +36,6 @@ val CURRENCIES = listOf("EUR", "USD", "GBP", "JPY", "CHF", "CAD", "AUD", "HUF", 
 @Composable
 fun AddEntryContent(
     repository: EntryRepository,
-    preferencesManager: PreferencesManager,
     entry: PortfolioEntryEntity? = null,
     onSave: () -> Unit,
     onBack: () -> Unit
@@ -380,10 +378,9 @@ fun AddEntryContent(
                                             currency = selectedCurrency,
                                             convertedAmount = convertedAmount
                                         )
-                                        Log.d("AddEntry", "Updating entry: $updatedEntry")
+                                        Log.d("AddEntry", "Updating entry: ${updatedEntry.description} (${updatedEntry.entryId})")
                                         repository.updateEntry(updatedEntry)
-                                        preferencesManager.saveEntry(updatedEntry)
-                                        Log.d("AddEntry", "Entry updated successfully in DB and prefs")
+                                        Log.d("AddEntry", "Entry updated successfully in database")
                                     } else {
                                         val newEntry = PortfolioEntryEntity(
                                             entryId = java.util.UUID.randomUUID().toString(),
@@ -395,10 +392,10 @@ fun AddEntryContent(
                                             currency = selectedCurrency,
                                             convertedAmount = convertedAmount
                                         )
-                                        Log.d("AddEntry", "Creating new entry: $newEntry")
+                                        Log.d("AddEntry", "Creating new entry: ${newEntry.description} (${newEntry.entryId})")
+                                        Log.d("AddEntry", "Entry DateTime: ${newEntry.dateTime}")
                                         repository.insertEntry(newEntry)
-                                        preferencesManager.saveEntry(newEntry)
-                                        Log.d("AddEntry", "Entry inserted successfully in DB and prefs")
+                                        Log.d("AddEntry", "Entry inserted successfully in database")
                                     }
                                     isLoading = false
                                     Log.d("AddEntry", "Calling onSave() callback")
