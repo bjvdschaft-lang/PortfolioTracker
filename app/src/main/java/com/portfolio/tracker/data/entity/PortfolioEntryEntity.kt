@@ -6,8 +6,8 @@ import androidx.room.PrimaryKey
 @Entity(tableName = "portfolio_entries")
 data class PortfolioEntryEntity(
     @PrimaryKey(autoGenerate = true)
-    val id: Long = 0,
-    val entryId: String,
+    val id: Long = 0,  // This MUST stay 0 - Room auto-generates it on insert
+    val entryId: String,  // Your custom UUID string
     val dateTime: String,
     val type: String,
     val category: String,
