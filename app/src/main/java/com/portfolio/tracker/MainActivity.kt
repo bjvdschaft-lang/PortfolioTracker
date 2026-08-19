@@ -23,7 +23,9 @@ class MainActivity : ComponentActivity() {
         Log.d("MainActivity", "onCreate called")
 
         val database = AppDatabase.getInstance(this)
-        repository = EntryRepository(database.entryDao())
+        // Pass context to repository so it can sync database after operations
+        repository = EntryRepository(database.entryDao(), this)
+        Log.d("MainActivity", "Repository initialized with database sync capability")
 
         setContent {
             Log.d("MainActivity", "setContent called, creating UI")
@@ -43,7 +45,8 @@ class MainActivity : ComponentActivity() {
                     onImportData = { currentScreen = "import" },
                     onDebug = { currentScreen = "debug" },
                     onShutdown = { 
-                        Log.d("MainActivity", "Shutdown called, closing app")
+                        Log.d("MainActivity", "Shutdown called, syncing database and closing app")
+                        AppDatabase.syncDatabase(this@MainActivity)
                         finish() 
                     }
                 )
@@ -72,17 +75,20 @@ class MainActivity : ComponentActivity() {
     }
 
     override fun onDestroy() {
-        Log.d("MainActivity", "onDestroy called")
+        Log.d("MainActivity", "onDestroy called - final database sync")
+        AppDatabase.syncDatabase(this)
         super.onDestroy()
     }
 
     override fun onPause() {
-        Log.d("MainActivity", "onPause called")
+        Log.d("MainActivity", "onPause called - syncing database before app goes to background")
+        AppDatabase.syncDatabase(this)
         super.onPause()
     }
 
     override fun onStop() {
-        Log.d("MainActivity", "onStop called")
+        Log.d("MainActivity", "onStop called - syncing database")
+        AppDatabase.syncDatabase(this)
         super.onStop()
     }
 }
