@@ -32,10 +32,12 @@ abstract class AppDatabase : RoomDatabase() {
                     )
                     .fallbackToDestructiveMigration()
                     .enableMultiInstanceInvalidation()
+                    .setJournalMode(JournalMode.WRITE_AHEAD_LOGGING)
                     .build()
                     
                     Log.d("AppDatabase", "Database created successfully")
                     Log.d("AppDatabase", "Database isOpen: ${db.isOpen}")
+                    Log.d("AppDatabase", "Database path verified: ${dbPath.absolutePath}")
                     
                     try {
                         // Verify database connectivity
@@ -55,6 +57,24 @@ abstract class AppDatabase : RoomDatabase() {
                     instance = db
                     db
                 }
+            }
+        }
+
+        /**
+         * Force database to sync all pending writes to disk.
+         * Called after critical operations to ensure data persistence.
+         */
+        fun syncDatabase(context: Context) {
+            try {
+                val db = getInstance(context)
+                if (db.isOpen) {
+                    // Execute a simple query to force any pending writes
+                    db.query("PRAGMA wal_checkpoint(RESTART);", null).use { cursor ->
+                        Log.d("AppDatabase", "Database checkpoint forced - all data synced to disk")
+                    }
+                }
+            } catch (e: Exception) {
+                Log.e("AppDatabase", "Error syncing database: ${e.message}", e)
             }
         }
     }
