@@ -29,16 +29,26 @@ class EntryRepository(private val entryDao: EntryDao, private val context: Conte
         try {
             val rowId = entryDao.insertEntry(entry)
             Log.d(TAG, "✓ Entry inserted successfully into database (row ID: $rowId)")
+            
             if (rowId < 0) {
                 Log.e(TAG, "✗ Insert returned negative row ID: $rowId")
             } else {
-                // Force sync to disk after insert
-                Log.d(TAG, "Syncing database to disk...")
-                context?.let { AppDatabase.syncDatabase(it) }
-                Log.d(TAG, "✓ Database synced - data is now persistent")
+                // Verify insertion by checking total count
+                val countAfter = entryDao.getEntryCount()
+                Log.d(TAG, "✓ Database now contains $countAfter total entries")
+                
+                if (countAfter > 0) {
+                    // Force sync to disk after successful insert
+                    Log.d(TAG, "Syncing database to disk...")
+                    context?.let { AppDatabase.syncDatabase(it) }
+                    Log.d(TAG, "✓ Database synced - data is now persistent")
+                } else {
+                    Log.e(TAG, "✗ ERROR: Entry count is 0 after insert!")
+                }
             }
         } catch (e: Exception) {
             Log.e(TAG, "✗ Error inserting entry: ${e.message}", e)
+            e.printStackTrace()
             throw e
         }
     }
@@ -55,15 +65,20 @@ class EntryRepository(private val entryDao: EntryDao, private val context: Conte
         try {
             val rowsUpdated = entryDao.updateEntry(entry)
             Log.d(TAG, "✓ Entry update attempted (rows affected: $rowsUpdated)")
+            
             if (rowsUpdated == 0) {
                 Log.w(TAG, "⚠ WARNING: Update affected 0 rows!")
                 Log.w(TAG, "  - Entry may not exist in database")
                 Log.w(TAG, "  - Check if entry was previously inserted")
                 Log.w(TAG, "  - Attempting INSERT instead...")
-                // Fallback to insert if update found nothing
                 insertEntry(entry)
             } else {
                 Log.d(TAG, "✓ Update successful, $rowsUpdated row(s) modified")
+                
+                // Verify update by checking total count
+                val countAfter = entryDao.getEntryCount()
+                Log.d(TAG, "✓ Database contains $countAfter total entries after update")
+                
                 // Force sync to disk after update
                 Log.d(TAG, "Syncing database to disk...")
                 context?.let { AppDatabase.syncDatabase(it) }
@@ -71,6 +86,7 @@ class EntryRepository(private val entryDao: EntryDao, private val context: Conte
             }
         } catch (e: Exception) {
             Log.e(TAG, "✗ Error updating entry: ${e.message}", e)
+            e.printStackTrace()
             throw e
         }
     }
@@ -83,12 +99,18 @@ class EntryRepository(private val entryDao: EntryDao, private val context: Conte
         try {
             val rowsDeleted = entryDao.deleteEntry(entry)
             Log.d(TAG, "✓ Entry delete attempted (rows affected: $rowsDeleted)")
+            
             if (rowsDeleted == 0) {
                 Log.w(TAG, "⚠ WARNING: Delete affected 0 rows!")
                 Log.w(TAG, "  - Entry may not exist in database")
                 Log.w(TAG, "  - Check if entry was previously inserted")
             } else {
                 Log.d(TAG, "✓ Delete successful, $rowsDeleted row(s) removed")
+                
+                // Verify deletion by checking total count
+                val countAfter = entryDao.getEntryCount()
+                Log.d(TAG, "✓ Database now contains $countAfter total entries after delete")
+                
                 // Force sync to disk after delete
                 Log.d(TAG, "Syncing database to disk...")
                 context?.let { AppDatabase.syncDatabase(it) }
@@ -96,6 +118,7 @@ class EntryRepository(private val entryDao: EntryDao, private val context: Conte
             }
         } catch (e: Exception) {
             Log.e(TAG, "✗ Error deleting entry: ${e.message}", e)
+            e.printStackTrace()
             throw e
         }
     }
@@ -113,6 +136,7 @@ class EntryRepository(private val entryDao: EntryDao, private val context: Conte
             }
         } catch (e: Exception) {
             Log.e(TAG, "✗ Error getting entry by ID: ${e.message}", e)
+            e.printStackTrace()
             throw e
         }
     }
@@ -124,13 +148,36 @@ class EntryRepository(private val entryDao: EntryDao, private val context: Conte
         try {
             val rowsDeleted = entryDao.clearAll()
             Log.d(TAG, "✓ All entries cleared successfully ($rowsDeleted rows deleted)")
+            
+            // Verify clear by checking total count
+            val countAfter = entryDao.getEntryCount()
+            Log.d(TAG, "✓ Database now contains $countAfter total entries (should be 0)")
+            
+            if (countAfter == 0) {
+                Log.d(TAG, "✓ Clear successful - database is empty")
+            } else {
+                Log.e(TAG, "✗ ERROR: Database still contains entries after clear!")
+            }
+            
             // Force sync to disk after clear
             Log.d(TAG, "Syncing database to disk...")
             context?.let { AppDatabase.syncDatabase(it) }
             Log.d(TAG, "✓ Database synced - data is now persistent")
         } catch (e: Exception) {
             Log.e(TAG, "✗ Error clearing all entries: ${e.message}", e)
+            e.printStackTrace()
             throw e
+        }
+    }
+
+    suspend fun getEntryCount(): Int {
+        return try {
+            val count = entryDao.getEntryCount()
+            Log.d(TAG, "Database entry count: $count")
+            count
+        } catch (e: Exception) {
+            Log.e(TAG, "Error getting entry count: ${e.message}", e)
+            0
         }
     }
 }
