@@ -60,8 +60,9 @@ abstract class AppDatabase : RoomDatabase() {
                         Log.d("AppDatabase", "DAO created successfully")
                         
                         // Check if table exists
-                        writableDb.rawQuery("SELECT name FROM sqlite_master WHERE type='table' AND name='portfolio_entries'", emptyArray()).use { cursor ->
-                            if (cursor.moveToFirst()) {
+                        val cursor1 = writableDb.rawQuery("SELECT name FROM sqlite_master WHERE type='table' AND name='portfolio_entries'", emptyArray())
+                        cursor1.use {
+                            if (it.moveToFirst()) {
                                 Log.d("AppDatabase", "✓ portfolio_entries table EXISTS in database")
                             } else {
                                 Log.e("AppDatabase", "✗ ERROR: portfolio_entries table DOES NOT EXIST!")
@@ -69,9 +70,10 @@ abstract class AppDatabase : RoomDatabase() {
                         }
                         
                         // Count current entries
-                        writableDb.rawQuery("SELECT COUNT(*) as count FROM portfolio_entries", emptyArray()).use { cursor ->
-                            cursor.moveToFirst()
-                            val count = cursor.getInt(0)
+                        val cursor2 = writableDb.rawQuery("SELECT COUNT(*) as count FROM portfolio_entries", emptyArray())
+                        cursor2.use {
+                            it.moveToFirst()
+                            val count = it.getInt(0)
                             Log.d("AppDatabase", "Current entry count: $count")
                         }
                     } catch (e: Exception) {
@@ -94,10 +96,9 @@ abstract class AppDatabase : RoomDatabase() {
                 if (db.isOpen) {
                     Log.d("AppDatabase", "Executing database checkpoint...")
                     // Execute checkpoint to force WAL to main database
-                    db.openHelper.writableDatabase.use { writableDb ->
-                        writableDb.rawQuery("PRAGMA wal_checkpoint(RESTART);", emptyArray()).use { cursor ->
-                            Log.d("AppDatabase", "✓ Database checkpoint complete - all data synced to disk")
-                        }
+                    val cursor = db.openHelper.writableDatabase.rawQuery("PRAGMA wal_checkpoint(RESTART);", emptyArray())
+                    cursor.use {
+                        Log.d("AppDatabase", "✓ Database checkpoint complete - all data synced to disk")
                     }
                 }
             } catch (e: Exception) {
