@@ -242,7 +242,9 @@ fun ImportScreen(
                                     csvContent = csvContent,
                                     repository = repository,
                                     onProgress = { current, _ ->
-                                        importProgress = current
+                                        withContext(Dispatchers.Main) {
+                                            importProgress = current
+                                        }
                                     }
                                 )
                             }
