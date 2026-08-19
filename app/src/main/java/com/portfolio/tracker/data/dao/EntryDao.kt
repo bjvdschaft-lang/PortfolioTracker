@@ -7,13 +7,13 @@ import kotlinx.coroutines.flow.Flow
 @Dao
 interface EntryDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insertEntry(entry: PortfolioEntryEntity)
+    suspend fun insertEntry(entry: PortfolioEntryEntity): Long
 
     @Update
-    suspend fun updateEntry(entry: PortfolioEntryEntity)
+    suspend fun updateEntry(entry: PortfolioEntryEntity): Int
 
     @Delete
-    suspend fun deleteEntry(entry: PortfolioEntryEntity)
+    suspend fun deleteEntry(entry: PortfolioEntryEntity): Int
 
     @Query("SELECT * FROM portfolio_entries ORDER BY dateTime DESC")
     fun getAllEntries(): Flow<List<PortfolioEntryEntity>>
@@ -22,7 +22,7 @@ interface EntryDao {
     suspend fun getEntryById(id: String): PortfolioEntryEntity?
 
     @Query("DELETE FROM portfolio_entries")
-    suspend fun clearAll()
+    suspend fun clearAll(): Int
 
     // Transaction for batch operations
     @Transaction
