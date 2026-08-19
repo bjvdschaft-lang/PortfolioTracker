@@ -3,6 +3,7 @@ package com.portfolio.tracker.data.dao
 import androidx.room.*
 import com.portfolio.tracker.data.entity.PortfolioEntryEntity
 import kotlinx.coroutines.flow.Flow
+import android.util.Log
 
 @Dao
 interface EntryDao {
@@ -23,6 +24,10 @@ interface EntryDao {
 
     @Query("DELETE FROM portfolio_entries")
     suspend fun clearAll(): Int
+
+    // Query to verify table exists and get entry count
+    @Query("SELECT COUNT(*) FROM portfolio_entries")
+    suspend fun getEntryCount(): Int
 
     // Transaction for batch operations
     @Transaction
