@@ -355,40 +355,38 @@ fun AddEntryContent(
                         amount.toDoubleOrNull() ?: 0.0 <= 0 -> errorMessage = "Amount must be greater than 0"
                         else -> {
                             isLoading = true
-                            scope.launch(Dispatchers.IO) {
+                            scope.launch {
                                 try {
-                                    if (isEditing) {
-                                        val updatedEntry = entry!!.copy(
-                                            type = selectedType,
-                                            category = selectedCategory,
-                                            description = description,
-                                            amount = amount.toDouble(),
-                                            currency = selectedCurrency,
-                                            convertedAmount = convertedAmount
-                                        )
-                                        repository.updateEntry(updatedEntry)
-                                    } else {
-                                        val newEntry = PortfolioEntryEntity(
-                                            entryId = java.util.UUID.randomUUID().toString(),
-                                            dateTime = java.time.LocalDateTime.now().format(java.time.format.DateTimeFormatter.ISO_DATE_TIME),
-                                            type = selectedType,
-                                            category = selectedCategory,
-                                            description = description,
-                                            amount = amount.toDouble(),
-                                            currency = selectedCurrency,
-                                            convertedAmount = convertedAmount
-                                        )
-                                        repository.insertEntry(newEntry)
+                                    withContext(Dispatchers.IO) {
+                                        if (isEditing) {
+                                            val updatedEntry = entry!!.copy(
+                                                type = selectedType,
+                                                category = selectedCategory,
+                                                description = description,
+                                                amount = amount.toDouble(),
+                                                currency = selectedCurrency,
+                                                convertedAmount = convertedAmount
+                                            )
+                                            repository.updateEntry(updatedEntry)
+                                        } else {
+                                            val newEntry = PortfolioEntryEntity(
+                                                entryId = java.util.UUID.randomUUID().toString(),
+                                                dateTime = java.time.LocalDateTime.now().format(java.time.format.DateTimeFormatter.ISO_DATE_TIME),
+                                                type = selectedType,
+                                                category = selectedCategory,
+                                                description = description,
+                                                amount = amount.toDouble(),
+                                                currency = selectedCurrency,
+                                                convertedAmount = convertedAmount
+                                            )
+                                            repository.insertEntry(newEntry)
+                                        }
                                     }
-                                    withContext(Dispatchers.Main) {
-                                        isLoading = false
-                                        onSave()
-                                    }
+                                    isLoading = false
+                                    onSave()
                                 } catch (e: Exception) {
-                                    withContext(Dispatchers.Main) {
-                                        errorMessage = "Error saving entry: ${e.message}"
-                                        isLoading = false
-                                    }
+                                    errorMessage = "Error saving entry: ${e.message}"
+                                    isLoading = false
                                 }
                             }
                         }

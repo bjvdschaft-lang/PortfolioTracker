@@ -235,27 +235,23 @@ fun ImportScreen(
                         .drop(1)
                     totalEntries = lines.size
 
-                    scope.launch(Dispatchers.IO) {
+                    scope.launch {
                         try {
-                            ImportHelper.importCsvData(
-                                csvContent = csvContent,
-                                repository = repository,
-                                onProgress = { current, _ ->
-                                    withContext(Dispatchers.Main) {
+                            withContext(Dispatchers.IO) {
+                                ImportHelper.importCsvData(
+                                    csvContent = csvContent,
+                                    repository = repository,
+                                    onProgress = { current, _ ->
                                         importProgress = current
                                     }
-                                }
-                            )
-                            withContext(Dispatchers.Main) {
-                                isImporting = false
-                                importSuccess = true
-                                csvContent = ""
+                                )
                             }
+                            isImporting = false
+                            importSuccess = true
+                            csvContent = ""
                         } catch (e: Exception) {
-                            withContext(Dispatchers.Main) {
-                                errorMessage = "Import failed: ${e.message}"
-                                isImporting = false
-                            }
+                            errorMessage = "Import failed: ${e.message}"
+                            isImporting = false
                         }
                     }
                 },
