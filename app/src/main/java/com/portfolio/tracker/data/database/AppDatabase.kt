@@ -41,7 +41,6 @@ abstract class AppDatabase : RoomDatabase() {
                         "portfolio_tracker_db"
                     )
                     .addMigrations(MIGRATION_1_2)
-                    .fallbackToDestructiveMigration()
                     .enableMultiInstanceInvalidation()
                     .setJournalMode(JournalMode.WRITE_AHEAD_LOGGING)
                     .build()

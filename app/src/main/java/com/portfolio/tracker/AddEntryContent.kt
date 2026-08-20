@@ -18,6 +18,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.zIndex
 import android.util.Log
+import android.content.Context
+import androidx.compose.ui.platform.LocalContext
+import com.portfolio.tracker.data.database.AppDatabase
 import com.portfolio.tracker.data.entity.PortfolioEntryEntity
 import com.portfolio.tracker.data.repository.EntryRepository
 import kotlinx.coroutines.launch
@@ -342,7 +345,8 @@ fun AddEntryContent(
                 }
             }
 
-            val scope = rememberCoroutineScope()
+            val context = LocalContext.current
+    val scope = rememberCoroutineScope()
 
             Button(
                 onClick = {
@@ -398,6 +402,8 @@ fun AddEntryContent(
                                         Log.d("AddEntry", "Entry inserted successfully in database")
                                     }
                                     isLoading = false
+                                    Log.d("AddEntry", "Forcing database sync before navigating away")
+                                    AppDatabase.syncDatabase(context)
                                     Log.d("AddEntry", "Calling onSave() callback")
                                     onSave()
                                 } catch (e: Exception) {

@@ -4,6 +4,8 @@ import com.portfolio.tracker.data.dao.EntryDao
 import com.portfolio.tracker.data.database.AppDatabase
 import com.portfolio.tracker.data.entity.PortfolioEntryEntity
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.onStart
 import android.util.Log
 import android.content.Context
 
@@ -12,9 +14,9 @@ class EntryRepository(private val entryDao: EntryDao, private val context: Conte
 
     fun getAllEntries(): Flow<List<PortfolioEntryEntity>> {
         Log.d(TAG, "getAllEntries() called - setting up flow collector")
-        return entryDao.getAllEntries().also { flow ->
-            Log.d(TAG, "Flow created, will emit entries when database changes")
-        }
+        return entryDao.getAllEntries()
+            .onStart { Log.d(TAG, "Flow subscribed - querying database for entries") }
+            .onEach { entries -> Log.d(TAG, "Flow emitted ${entries.size} entries from database") }
     }
 
     suspend fun insertEntry(entry: PortfolioEntryEntity) {
