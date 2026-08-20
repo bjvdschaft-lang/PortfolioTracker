@@ -17,6 +17,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.zIndex
+import android.util.Log
 import com.portfolio.tracker.data.entity.PortfolioEntryEntity
 import com.portfolio.tracker.data.repository.EntryRepository
 import kotlinx.coroutines.launch
@@ -346,11 +347,24 @@ fun AddEntryContent(
             Button(
                 onClick = {
                     errorMessage = ""
+                    Log.d("AddEntry", "Save button clicked. isEditing=$isEditing, description='$description', amount='$amount'")
                     when {
-                        description.isBlank() -> errorMessage = "Description is required"
-                        amount.isBlank() -> errorMessage = "Amount is required"
-                        amount.toDoubleOrNull() == null -> errorMessage = "Invalid amount"
-                        amount.toDoubleOrNull() ?: 0.0 <= 0 -> errorMessage = "Amount must be greater than 0"
+                        description.isBlank() -> {
+                            errorMessage = "Description is required"
+                            Log.w("AddEntry", "Validation failed: description is blank")
+                        }
+                        amount.isBlank() -> {
+                            errorMessage = "Amount is required"
+                            Log.w("AddEntry", "Validation failed: amount is blank")
+                        }
+                        amount.toDoubleOrNull() == null -> {
+                            errorMessage = "Invalid amount"
+                            Log.w("AddEntry", "Validation failed: invalid amount format - '$amount'")
+                        }
+                        amount.toDoubleOrNull() ?: 0.0 <= 0 -> {
+                            errorMessage = "Amount must be greater than 0"
+                            Log.w("AddEntry", "Validation failed: amount <= 0")
+                        }
                         else -> {
                             isLoading = true
                             scope.launch {
@@ -364,7 +378,9 @@ fun AddEntryContent(
                                             currency = selectedCurrency,
                                             convertedAmount = convertedAmount
                                         )
+                                        Log.d("AddEntry", "Updating entry: ${updatedEntry.description} (${updatedEntry.entryId})")
                                         repository.updateEntry(updatedEntry)
+                                        Log.d("AddEntry", "Entry updated successfully in database")
                                     } else {
                                         val newEntry = PortfolioEntryEntity(
                                             entryId = java.util.UUID.randomUUID().toString(),
@@ -376,13 +392,19 @@ fun AddEntryContent(
                                             currency = selectedCurrency,
                                             convertedAmount = convertedAmount
                                         )
+                                        Log.d("AddEntry", "Creating new entry: ${newEntry.description} (${newEntry.entryId})")
+                                        Log.d("AddEntry", "Entry DateTime: ${newEntry.dateTime}")
                                         repository.insertEntry(newEntry)
+                                        Log.d("AddEntry", "Entry inserted successfully in database")
                                     }
                                     isLoading = false
+                                    Log.d("AddEntry", "Calling onSave() callback")
                                     onSave()
                                 } catch (e: Exception) {
-                                    errorMessage = "Error saving entry: ${e.message}"
+                                    val errorMsg = "Error saving entry: ${e.message}\n${e.stackTraceToString()}"
+                                    errorMessage = errorMsg
                                     isLoading = false
+                                    Log.e("AddEntry", errorMsg, e)
                                 }
                             }
                         }

@@ -23,6 +23,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.portfolio.tracker.data.entity.PortfolioEntryEntity
 import com.portfolio.tracker.data.repository.EntryRepository
+import android.util.Log
 import kotlinx.coroutines.launch
 
 @Composable
@@ -121,6 +122,7 @@ fun DebugScreen(
                             val csvContent = buildCsvString(entries)
                             clipboardManager.setText(AnnotatedString(csvContent))
                             copyFeedback = "✓ CSV copied to clipboard!"
+                            Log.d("DebugScreen", "CSV exported to clipboard (${entries.size} entries)")
                         },
                         modifier = Modifier.weight(1f),
                         colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF48BB78))
@@ -270,7 +272,12 @@ fun DebugScreen(
                 Button(
                     onClick = {
                         scope.launch {
-                            entries.forEach { repository.deleteEntry(it) }
+                            Log.d("DebugScreen", "Clearing database - deleting ${entries.size} entries")
+                            entries.forEach { 
+                                repository.deleteEntry(it)
+                                Log.d("DebugScreen", "Deleted entry: ${it.description} (${it.entryId})")
+                            }
+                            Log.d("DebugScreen", "Database cleared successfully")
                             showClearDialog = false
                         }
                     },

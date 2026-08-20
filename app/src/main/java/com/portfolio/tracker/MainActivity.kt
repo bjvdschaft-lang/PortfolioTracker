@@ -12,20 +12,36 @@ import com.portfolio.tracker.data.repository.EntryRepository
 import com.portfolio.tracker.ui.screens.DashboardContent
 import com.portfolio.tracker.ui.screens.ChartsScreen
 import com.portfolio.tracker.ui.screens.ImportScreen
+import android.util.Log
+import kotlinx.coroutines.launch
 
 class MainActivity : ComponentActivity() {
     private lateinit var repository: EntryRepository
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        Log.d("MainActivity", "=== onCreate called ===")
 
         val database = AppDatabase.getInstance(this)
-        repository = EntryRepository(database.entryDao())
+        repository = EntryRepository(database.entryDao(), this)
+        Log.d("MainActivity", "Repository initialized")
 
         setContent {
+            Log.d("MainActivity", "setContent called, creating UI")
             var currentScreen by remember { mutableStateOf("dashboard") }
             var selectedEntry by remember { mutableStateOf<PortfolioEntryEntity?>(null) }
+            
+            // CRITICAL: Collect entries - this triggers database query
             val dbEntries by repository.getAllEntries().collectAsState(initial = emptyList())
+            
+            Log.d("MainActivity", "Collected ${dbEntries.size} entries from database")
+            if (dbEntries.isNotEmpty()) {
+                dbEntries.forEach { entry ->
+                    Log.d("MainActivity", "  - Entry: ${entry.description} (€${entry.convertedAmount})")
+                }
+            } else {
+                Log.d("MainActivity", "  No entries found in database")
+            }
 
             when (currentScreen) {
                 "dashboard" -> DashboardContent(
@@ -36,7 +52,11 @@ class MainActivity : ComponentActivity() {
                     onViewCharts = { currentScreen = "charts" },
                     onImportData = { currentScreen = "import" },
                     onDebug = { currentScreen = "debug" },
-                    onShutdown = { finish() }
+                    onShutdown = { 
+                        Log.d("MainActivity", "Shutdown called, syncing database and closing app")
+                        AppDatabase.syncDatabase(this@MainActivity)
+                        finish() 
+                    }
                 )
                 "add_entry" -> AddEntryContent(
                     repository = repository,
@@ -60,5 +80,23 @@ class MainActivity : ComponentActivity() {
                 )
             }
         }
+    }
+
+    override fun onDestroy() {
+        Log.d("MainActivity", "onDestroy called - final database sync")
+        AppDatabase.syncDatabase(this)
+        super.onDestroy()
+    }
+
+    override fun onPause() {
+        Log.d("MainActivity", "onPause called - syncing database before app goes to background")
+        AppDatabase.syncDatabase(this)
+        super.onPause()
+    }
+
+    override fun onStop() {
+        Log.d("MainActivity", "onStop called - syncing database")
+        AppDatabase.syncDatabase(this)
+        super.onStop()
     }
 }
