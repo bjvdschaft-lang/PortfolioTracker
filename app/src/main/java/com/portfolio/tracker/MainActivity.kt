@@ -4,6 +4,7 @@ import com.portfolio.tracker.ui.screens.DebugScreen
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.activity.OnBackPressedCallback
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import com.portfolio.tracker.data.database.AppDatabase
@@ -22,6 +23,14 @@ class MainActivity : ComponentActivity() {
         val database = AppDatabase.getInstance(this)
         repository = EntryRepository(database.entryDao())
 
+        // Handle back button press
+        onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+                // On back button, exit the app cleanly
+                finish()
+            }
+        })
+
         setContent {
             var currentScreen by remember { mutableStateOf("dashboard") }
             var selectedEntry by remember { mutableStateOf<PortfolioEntryEntity?>(null) }
@@ -35,7 +44,8 @@ class MainActivity : ComponentActivity() {
                     onEditEntry = { entry -> selectedEntry = entry; currentScreen = "add_entry" },
                     onViewCharts = { currentScreen = "charts" },
                     onImportData = { currentScreen = "import" },
-                    onDebug = { currentScreen = "debug" }
+                    onDebug = { currentScreen = "debug" },
+                    onExit = { finish() }
                 )
                 "add_entry" -> AddEntryContent(
                     repository = repository,
