@@ -11,6 +11,7 @@ import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.UploadFile
 import androidx.compose.material.icons.filled.ArrowDropDown
+import androidx.compose.material.icons.filled.Exit
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -33,8 +34,11 @@ fun DashboardContent(
     onEditEntry: (PortfolioEntryEntity) -> Unit,
     onViewCharts: () -> Unit,
     onImportData: () -> Unit,
-    onDebug: () -> Unit = {}
+    onDebug: () -> Unit = {},
+    onExit: () -> Unit = {}
 ) {
+    var showExitDialog by remember { mutableStateOf(false) }
+    
     val latestDateTime = entries.maxByOrNull { it.dateTime }?.dateTime
     val latestEntries = if (latestDateTime != null) {
         entries.filter { it.dateTime == latestDateTime }
@@ -117,6 +121,33 @@ fun DashboardContent(
     val totalLiabilities = liabilityEntries.sumOf { it.convertedAmount }
     val netWorth = totalAssets - totalLiabilities
     val scope = rememberCoroutineScope()
+
+    if (showExitDialog) {
+        AlertDialog(
+            onDismissRequest = { showExitDialog = false },
+            title = { Text("Exit Application?") },
+            text = { Text("Are you sure you want to exit? Your data is automatically saved.") },
+            confirmButton = {
+                Button(
+                    onClick = {
+                        showExitDialog = false
+                        onExit()
+                    },
+                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF6200EE))
+                ) {
+                    Text("Exit", color = Color.White)
+                }
+            },
+            dismissButton = {
+                Button(
+                    onClick = { showExitDialog = false },
+                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFE3E5E8))
+                ) {
+                    Text("Cancel", color = Color(0xFF1F2328))
+                }
+            }
+        )
+    }
 
     // LazyColumn DIRECTLY - NO outer Column wrapper
     LazyColumn(
@@ -278,6 +309,30 @@ fun DashboardContent(
                         tint = Color.White
                     )
                     Text("Debug", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 11.sp)
+                }
+            }
+        }
+
+        // Exit Button
+        item {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp)
+                    .padding(bottom = 16.dp)
+            ) {
+                Button(
+                    onClick = { showExitDialog = true },
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFFF6B6B))
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Exit,
+                        contentDescription = "Exit",
+                        modifier = Modifier.size(18.dp),
+                        tint = Color.White
+                    )
+                    Text("Exit", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 12.sp)
                 }
             }
         }
