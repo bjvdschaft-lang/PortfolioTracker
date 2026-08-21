@@ -11,7 +11,7 @@ import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.UploadFile
 import androidx.compose.material.icons.filled.ArrowDropDown
-import androidx.compose.material.icons.filled.Exit
+import androidx.compose.material.icons.filled.Power
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -155,98 +155,122 @@ fun DashboardContent(
             .fillMaxSize()
             .background(Color(0xFFF2F3F5))
     ) {
-        // Stats Section at Top
+        // Stats Section at Top with Exit Button
         item {
-            Row(
+            Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(16.dp),
-                horizontalArrangement = Arrangement.spacedBy(12.dp)
+                    .padding(16.dp)
             ) {
-                Card(
+                // Exit Button - Top Left
+                Button(
+                    onClick = { showExitDialog = true },
                     modifier = Modifier
-                        .weight(1f)
-                        .height(80.dp),
-                    colors = CardDefaults.cardColors(containerColor = Color(0xFF6200EE))
+                        .align(Alignment.TopStart)
+                        .size(width = 60.dp, height = 40.dp),
+                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFFF6B6B)),
+                    contentPadding = PaddingValues(4.dp)
                 ) {
-                    Column(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .padding(10.dp),
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                        verticalArrangement = Arrangement.Center
-                    ) {
-                        Text(
-                            text = "Net Worth",
-                            color = Color(0xFFE1BEE7),
-                            fontSize = 9.sp,
-                            fontWeight = FontWeight.SemiBold
-                        )
-                        Text(
-                            text = "€ ${"%.2f".format(netWorth)}",
-                            color = Color.White,
-                            fontSize = 16.sp,
-                            fontWeight = FontWeight.Bold,
-                            modifier = Modifier.padding(top = 4.dp)
-                        )
-                    }
+                    Icon(
+                        imageVector = Icons.Default.Power,
+                        contentDescription = "Exit",
+                        modifier = Modifier.size(16.dp),
+                        tint = Color.White
+                    )
                 }
 
-                Card(
+                // Stats Cards - Centered
+                Row(
                     modifier = Modifier
-                        .weight(1f)
-                        .height(80.dp),
-                    colors = CardDefaults.cardColors(containerColor = Color(0x90A4DE6C))
+                        .fillMaxWidth()
+                        .padding(start = 70.dp),
+                    horizontalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
-                    Column(
+                    Card(
                         modifier = Modifier
-                            .fillMaxSize()
-                            .padding(10.dp),
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                        verticalArrangement = Arrangement.Center
+                            .weight(1f)
+                            .height(80.dp),
+                        colors = CardDefaults.cardColors(containerColor = Color(0xFF6200EE))
                     ) {
-                        Text(
-                            text = "Assets",
-                            color = Color(0xFF2D5016),
-                            fontSize = 9.sp,
-                            fontWeight = FontWeight.SemiBold
-                        )
-                        Text(
-                            text = "€ ${"%.2f".format(totalAssets)}",
-                            color = Color(0xFF2D5016),
-                            fontSize = 14.sp,
-                            fontWeight = FontWeight.Bold,
-                            modifier = Modifier.padding(top = 4.dp)
-                        )
+                        Column(
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .padding(10.dp),
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            verticalArrangement = Arrangement.Center
+                        ) {
+                            Text(
+                                text = "Net Worth",
+                                color = Color(0xFFE1BEE7),
+                                fontSize = 9.sp,
+                                fontWeight = FontWeight.SemiBold
+                            )
+                            Text(
+                                text = "€ ${"%.2f".format(netWorth)}",
+                                color = Color.White,
+                                fontSize = 16.sp,
+                                fontWeight = FontWeight.Bold,
+                                modifier = Modifier.padding(top = 4.dp)
+                            )
+                        }
                     }
-                }
 
-                Card(
-                    modifier = Modifier
-                        .weight(1f)
-                        .height(80.dp),
-                    colors = CardDefaults.cardColors(containerColor = Color(0xFFCF6679))
-                ) {
-                    Column(
+                    Card(
                         modifier = Modifier
-                            .fillMaxSize()
-                            .padding(10.dp),
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                        verticalArrangement = Arrangement.Center
+                            .weight(1f)
+                            .height(80.dp),
+                        colors = CardDefaults.cardColors(containerColor = Color(0x90A4DE6C))
                     ) {
-                        Text(
-                            text = "Liabilities",
-                            color = Color.White,
-                            fontSize = 9.sp,
-                            fontWeight = FontWeight.SemiBold
-                        )
-                        Text(
-                            text = "€ ${"%.2f".format(totalLiabilities)}",
-                            color = Color.White,
-                            fontSize = 14.sp,
-                            fontWeight = FontWeight.Bold,
-                            modifier = Modifier.padding(top = 4.dp)
-                        )
+                        Column(
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .padding(10.dp),
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            verticalArrangement = Arrangement.Center
+                        ) {
+                            Text(
+                                text = "Assets",
+                                color = Color(0xFF2D5016),
+                                fontSize = 9.sp,
+                                fontWeight = FontWeight.SemiBold
+                            )
+                            Text(
+                                text = "€ ${"%.2f".format(totalAssets)}",
+                                color = Color(0xFF2D5016),
+                                fontSize = 14.sp,
+                                fontWeight = FontWeight.Bold,
+                                modifier = Modifier.padding(top = 4.dp)
+                            )
+                        }
+                    }
+
+                    Card(
+                        modifier = Modifier
+                            .weight(1f)
+                            .height(80.dp),
+                        colors = CardDefaults.cardColors(containerColor = Color(0xFFCF6679))
+                    ) {
+                        Column(
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .padding(10.dp),
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            verticalArrangement = Arrangement.Center
+                        ) {
+                            Text(
+                                text = "Liabilities",
+                                color = Color.White,
+                                fontSize = 9.sp,
+                                fontWeight = FontWeight.SemiBold
+                            )
+                            Text(
+                                text = "€ ${"%.2f".format(totalLiabilities)}",
+                                color = Color.White,
+                                fontSize = 14.sp,
+                                fontWeight = FontWeight.Bold,
+                                modifier = Modifier.padding(top = 4.dp)
+                            )
+                        }
                     }
                 }
             }
@@ -309,30 +333,6 @@ fun DashboardContent(
                         tint = Color.White
                     )
                     Text("Debug", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 11.sp)
-                }
-            }
-        }
-
-        // Exit Button
-        item {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 16.dp)
-                    .padding(bottom = 16.dp)
-            ) {
-                Button(
-                    onClick = { showExitDialog = true },
-                    modifier = Modifier.fillMaxWidth(),
-                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFFF6B6B))
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.Exit,
-                        contentDescription = "Exit",
-                        modifier = Modifier.size(18.dp),
-                        tint = Color.White
-                    )
-                    Text("Exit", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 12.sp)
                 }
             }
         }
