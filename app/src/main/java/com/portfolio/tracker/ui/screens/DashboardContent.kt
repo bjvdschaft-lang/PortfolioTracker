@@ -276,7 +276,7 @@ fun DashboardContent(
             }
         }
 
-        // Action Buttons
+        // Action Buttons - Charts, Import, Debug only (removed Add)
         item {
             Row(
                 modifier = Modifier
@@ -285,20 +285,6 @@ fun DashboardContent(
                     .padding(bottom = 16.dp),
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                Button(
-                    onClick = onAddEntry,
-                    modifier = Modifier.weight(1f),
-                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF6200EE))
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.Add,
-                        contentDescription = "Add",
-                        modifier = Modifier.size(18.dp),
-                        tint = Color.White
-                    )
-                    Text("Add", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 12.sp)
-                }
-
                 Button(
                     onClick = onViewCharts,
                     modifier = Modifier.weight(1f),
@@ -573,17 +559,34 @@ fun DashboardContent(
             }
         }
 
-        // Assets Section Header - ALWAYS SHOW
+        // Assets Section Header with Add Button
         item {
-            Text(
-                text = "Assets (${assetEntries.size})",
-                color = Color(0xFF2D5016),
-                fontSize = 16.sp,
-                fontWeight = FontWeight.Bold,
+            Row(
                 modifier = Modifier
+                    .fillMaxWidth()
                     .padding(horizontal = 16.dp)
-                    .padding(bottom = 12.dp)
-            )
+                    .padding(bottom = 12.dp),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = "Assets (${assetEntries.size})",
+                    color = Color(0xFF2D5016),
+                    fontSize = 16.sp,
+                    fontWeight = FontWeight.Bold
+                )
+                IconButton(
+                    onClick = onAddEntry,
+                    modifier = Modifier.size(32.dp)
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Add,
+                        contentDescription = "Add Asset",
+                        tint = Color(0xFF2D5016),
+                        modifier = Modifier.size(24.dp)
+                    )
+                }
+            }
         }
 
         items(assetEntries) { entry ->
@@ -687,17 +690,35 @@ fun DashboardContent(
             }
         }
 
-        // Liabilities Section Header - ALWAYS SHOW
+        // Liabilities Section Header with Add Button
         item {
-            Text(
-                text = "Liabilities (${liabilityEntries.size})",
-                color = Color(0xFFCF6679),
-                fontSize = 16.sp,
-                fontWeight = FontWeight.Bold,
+            Row(
                 modifier = Modifier
-                    .padding(bottom = 12.dp, top = 24.dp)
+                    .fillMaxWidth()
                     .padding(horizontal = 16.dp)
-            )
+                    .padding(top = 24.dp)
+                    .padding(bottom = 12.dp),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = "Liabilities (${liabilityEntries.size})",
+                    color = Color(0xFFCF6679),
+                    fontSize = 16.sp,
+                    fontWeight = FontWeight.Bold
+                )
+                IconButton(
+                    onClick = onAddEntry,
+                    modifier = Modifier.size(32.dp)
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Add,
+                        contentDescription = "Add Liability",
+                        tint = Color(0xFFCF6679),
+                        modifier = Modifier.size(24.dp)
+                    )
+                }
+            }
         }
 
         items(liabilityEntries) { entry ->
