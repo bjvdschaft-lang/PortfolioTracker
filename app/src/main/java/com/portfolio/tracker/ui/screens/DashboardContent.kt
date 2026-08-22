@@ -80,9 +80,6 @@ fun DashboardContent(
     // Get today's date
     val todayDate = LocalDate.now().format(DateTimeFormatter.ISO_DATE)
 
-    // Track whether we're viewing an older date
-    val isViewingOlderDate = dropdownMode == "custom_date" && foundDate.isNotEmpty() && foundDate != todayDate
-
     // Find the exact matching date and update the display fields
     val (displayedEntries, foundDate) = if (dropdownMode == "most_recent" && latestDateTime != null) {
         Pair(entries.filter { it.dateTime == latestDateTime }, latestDateTime.substringBefore(" ").substringBefore("T"))
@@ -108,6 +105,9 @@ fun DashboardContent(
         // When dropdownMode is empty ("Clear screen" selected), show empty list
         Pair(emptyList(), "")
     }
+
+    // Track whether we're viewing an older date (NOW DEFINED AFTER foundDate)
+    val isViewingOlderDate = dropdownMode == "custom_date" && foundDate.isNotEmpty() && foundDate != todayDate
 
     // Update the input fields to reflect the found date (but only if user didn't manually input it)
     LaunchedEffect(foundDate) {
