@@ -25,6 +25,7 @@ import com.portfolio.tracker.data.entity.PortfolioEntryEntity
 import com.portfolio.tracker.data.repository.EntryRepository
 import kotlinx.coroutines.launch
 import java.time.LocalDate
+import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 
 @Composable
@@ -849,7 +850,7 @@ fun DashboardContent(
                 ) {
                     Button(
                         onClick = {
-                            // Save under older date
+                            // Save under older date (keep original dateTime)
                             scope.launch {
                                 displayedEntries.forEach { entry ->
                                     repository.updateEntry(entry)
@@ -864,10 +865,11 @@ fun DashboardContent(
 
                     Button(
                         onClick = {
-                            // Save under today's date
+                            // Save under today's date (update with current dateTime)
                             scope.launch {
                                 displayedEntries.forEach { entry ->
-                                    val updatedEntry = entry.copy(dateTime = "$todayDate ${LocalDate.now().format(DateTimeFormatter.ofPattern("HH:mm:ss"))}")
+                                    val currentDateTime = LocalDateTime.now().format(DateTimeFormatter.ISO_DATE_TIME)
+                                    val updatedEntry = entry.copy(dateTime = currentDateTime)
                                     repository.updateEntry(updatedEntry)
                                 }
                             }
