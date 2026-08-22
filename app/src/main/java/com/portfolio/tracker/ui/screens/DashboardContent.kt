@@ -573,7 +573,7 @@ fun DashboardContent(
             }
         }
 
-        // Assets Section Header
+        // Assets Section Header - ALWAYS SHOW
         item {
             Text(
                 text = "Assets (${assetEntries.size})",
@@ -687,136 +687,117 @@ fun DashboardContent(
             }
         }
 
-        // Liabilities Section
-        if (liabilityEntries.isNotEmpty()) {
-            item {
-                Text(
-                    text = "Liabilities (${liabilityEntries.size})",
-                    color = Color(0xFFCF6679),
-                    fontSize = 16.sp,
-                    fontWeight = FontWeight.Bold,
-                    modifier = Modifier
-                        .padding(bottom = 12.dp, top = 24.dp)
-                        .padding(horizontal = 16.dp)
-                )
-            }
-
-            items(liabilityEntries) { entry ->
-                var showDeleteDialog by remember { mutableStateOf(false) }
-
-                Card(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(bottom = 8.dp)
-                        .padding(horizontal = 16.dp),
-                    colors = CardDefaults.cardColors(containerColor = Color(0xFFF9F9F9))
-                ) {
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(8.dp),
-                        horizontalArrangement = Arrangement.spacedBy(8.dp),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Text(
-                            text = entry.category,
-                            color = Color(0xFF6B7280),
-                            fontSize = 10.sp,
-                            fontWeight = FontWeight.SemiBold,
-                            modifier = Modifier.weight(1f),
-                            maxLines = 1,
-                            overflow = TextOverflow.Ellipsis
-                        )
-                        Text(
-                            text = entry.description,
-                            color = Color(0xFF1F2328),
-                            fontSize = 10.sp,
-                            fontWeight = FontWeight.Bold,
-                            modifier = Modifier.weight(1.5f),
-                            maxLines = 1,
-                            overflow = TextOverflow.Ellipsis
-                        )
-                        Text(
-                            text = "${"%.2f".format(entry.amount)}",
-                            color = Color(0xFF1F2328),
-                            fontSize = 10.sp,
-                            fontWeight = FontWeight.SemiBold,
-                            modifier = Modifier.weight(1f),
-                            maxLines = 1,
-                            overflow = TextOverflow.Ellipsis
-                        )
-                        Text(
-                            text = entry.currency,
-                            color = Color(0xFF6B7280),
-                            fontSize = 10.sp,
-                            modifier = Modifier.weight(0.8f),
-                            maxLines = 1,
-                            overflow = TextOverflow.Ellipsis
-                        )
-                        Text(
-                            text = "€ ${"%.2f".format(entry.convertedAmount)}",
-                            color = Color(0xFFCF6679),
-                            fontSize = 10.sp,
-                            fontWeight = FontWeight.Bold,
-                            modifier = Modifier.weight(1.2f),
-                            maxLines = 1,
-                            overflow = TextOverflow.Ellipsis
-                        )
-
-                        IconButton(onClick = { onEditEntry(entry) }, modifier = Modifier.size(24.dp)) {
-                            Icon(imageVector = Icons.Default.Edit, contentDescription = "Edit", tint = Color(0xFF2563EB), modifier = Modifier.size(14.dp))
-                        }
-                        IconButton(onClick = { showDeleteDialog = true }, modifier = Modifier.size(24.dp)) {
-                            Icon(imageVector = Icons.Default.Delete, contentDescription = "Delete", tint = Color(0xFFCF6679), modifier = Modifier.size(14.dp))
-                        }
-                    }
-                }
-
-                if (showDeleteDialog) {
-                    AlertDialog(
-                        onDismissRequest = { showDeleteDialog = false },
-                        title = { Text("Delete Entry?") },
-                        text = { Text("Are you sure you want to delete '${entry.description}'?") },
-                        confirmButton = {
-                            Button(
-                                onClick = {
-                                    scope.launch {
-                                        repository.deleteEntry(entry)
-                                        showDeleteDialog = false
-                                    }
-                                },
-                                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFCF6679))
-                            ) {
-                                Text("Delete", color = Color.White)
-                            }
-                        },
-                        dismissButton = {
-                            Button(
-                                onClick = { showDeleteDialog = false },
-                                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFE3E5E8))
-                            ) {
-                                Text("Cancel", color = Color(0xFF1F2328))
-                            }
-                        }
-                    )
-                }
-            }
+        // Liabilities Section Header - ALWAYS SHOW
+        item {
+            Text(
+                text = "Liabilities (${liabilityEntries.size})",
+                color = Color(0xFFCF6679),
+                fontSize = 16.sp,
+                fontWeight = FontWeight.Bold,
+                modifier = Modifier
+                    .padding(bottom = 12.dp, top = 24.dp)
+                    .padding(horizontal = 16.dp)
+            )
         }
 
-        if (assetEntries.isEmpty() && liabilityEntries.isEmpty()) {
-            item {
-                Box(
+        items(liabilityEntries) { entry ->
+            var showDeleteDialog by remember { mutableStateOf(false) }
+
+            Card(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(bottom = 8.dp)
+                    .padding(horizontal = 16.dp),
+                colors = CardDefaults.cardColors(containerColor = Color(0xFFF9F9F9))
+            ) {
+                Row(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(32.dp),
-                    contentAlignment = Alignment.Center
+                        .padding(8.dp),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
                     Text(
-                        text = "No entries yet. Click 'Add' to get started!",
+                        text = entry.category,
                         color = Color(0xFF6B7280),
-                        fontSize = 14.sp
+                        fontSize = 10.sp,
+                        fontWeight = FontWeight.SemiBold,
+                        modifier = Modifier.weight(1f),
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
                     )
+                    Text(
+                        text = entry.description,
+                        color = Color(0xFF1F2328),
+                        fontSize = 10.sp,
+                        fontWeight = FontWeight.Bold,
+                        modifier = Modifier.weight(1.5f),
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                    Text(
+                        text = "${"%.2f".format(entry.amount)}",
+                        color = Color(0xFF1F2328),
+                        fontSize = 10.sp,
+                        fontWeight = FontWeight.SemiBold,
+                        modifier = Modifier.weight(1f),
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                    Text(
+                        text = entry.currency,
+                        color = Color(0xFF6B7280),
+                        fontSize = 10.sp,
+                        modifier = Modifier.weight(0.8f),
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                    Text(
+                        text = "€ ${"%.2f".format(entry.convertedAmount)}",
+                        color = Color(0xFFCF6679),
+                        fontSize = 10.sp,
+                        fontWeight = FontWeight.Bold,
+                        modifier = Modifier.weight(1.2f),
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
+                    )
+
+                    IconButton(onClick = { onEditEntry(entry) }, modifier = Modifier.size(24.dp)) {
+                        Icon(imageVector = Icons.Default.Edit, contentDescription = "Edit", tint = Color(0xFF2563EB), modifier = Modifier.size(14.dp))
+                    }
+                    IconButton(onClick = { showDeleteDialog = true }, modifier = Modifier.size(24.dp)) {
+                        Icon(imageVector = Icons.Default.Delete, contentDescription = "Delete", tint = Color(0xFFCF6679), modifier = Modifier.size(14.dp))
+                    }
                 }
+            }
+
+            if (showDeleteDialog) {
+                AlertDialog(
+                    onDismissRequest = { showDeleteDialog = false },
+                    title = { Text("Delete Entry?") },
+                    text = { Text("Are you sure you want to delete '${entry.description}'?") },
+                    confirmButton = {
+                        Button(
+                            onClick = {
+                                scope.launch {
+                                    repository.deleteEntry(entry)
+                                    showDeleteDialog = false
+                                }
+                            },
+                            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFCF6679))
+                        ) {
+                            Text("Delete", color = Color.White)
+                        }
+                    },
+                    dismissButton = {
+                        Button(
+                            onClick = { showDeleteDialog = false },
+                            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFE3E5E8))
+                        ) {
+                            Text("Cancel", color = Color(0xFF1F2328))
+                        }
+                    }
+                )
             }
         }
 
