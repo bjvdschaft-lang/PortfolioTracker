@@ -25,6 +25,7 @@ import com.portfolio.tracker.data.entity.PortfolioEntryEntity
 import com.portfolio.tracker.data.repository.EntryRepository
 import kotlinx.coroutines.launch
 import java.time.LocalDate
+import java.time.format.DateTimeFormatter
 
 @Composable
 fun DashboardContent(
@@ -75,6 +76,12 @@ fun DashboardContent(
     } else {
         ""
     }
+
+    // Get today's date
+    val todayDate = LocalDate.now().format(DateTimeFormatter.ISO_DATE)
+
+    // Track whether we're viewing an older date
+    val isViewingOlderDate = dropdownMode == "custom_date" && foundDate.isNotEmpty() && foundDate != todayDate
 
     // Find the exact matching date and update the display fields
     val (displayedEntries, foundDate) = if (dropdownMode == "most_recent" && latestDateTime != null) {
@@ -654,8 +661,12 @@ fun DashboardContent(
                     IconButton(onClick = { onEditEntry(entry) }, modifier = Modifier.size(24.dp)) {
                         Icon(imageVector = Icons.Default.Edit, contentDescription = "Edit", tint = Color(0xFF2563EB), modifier = Modifier.size(14.dp))
                     }
-                    IconButton(onClick = { showDeleteDialog = true }, modifier = Modifier.size(24.dp)) {
-                        Icon(imageVector = Icons.Default.Delete, contentDescription = "Delete", tint = Color(0xFFCF6679), modifier = Modifier.size(14.dp))
+                    IconButton(
+                        onClick = { showDeleteDialog = true },
+                        modifier = Modifier.size(24.dp),
+                        enabled = !isViewingOlderDate
+                    ) {
+                        Icon(imageVector = Icons.Default.Delete, contentDescription = "Delete", tint = if (isViewingOlderDate) Color(0xFFCCCCCC) else Color(0xFFCF6679), modifier = Modifier.size(14.dp))
                     }
                 }
             }
@@ -786,8 +797,12 @@ fun DashboardContent(
                     IconButton(onClick = { onEditEntry(entry) }, modifier = Modifier.size(24.dp)) {
                         Icon(imageVector = Icons.Default.Edit, contentDescription = "Edit", tint = Color(0xFF2563EB), modifier = Modifier.size(14.dp))
                     }
-                    IconButton(onClick = { showDeleteDialog = true }, modifier = Modifier.size(24.dp)) {
-                        Icon(imageVector = Icons.Default.Delete, contentDescription = "Delete", tint = Color(0xFFCF6679), modifier = Modifier.size(14.dp))
+                    IconButton(
+                        onClick = { showDeleteDialog = true },
+                        modifier = Modifier.size(24.dp),
+                        enabled = !isViewingOlderDate
+                    ) {
+                        Icon(imageVector = Icons.Default.Delete, contentDescription = "Delete", tint = if (isViewingOlderDate) Color(0xFFCCCCCC) else Color(0xFFCF6679), modifier = Modifier.size(14.dp))
                     }
                 }
             }
@@ -819,6 +834,50 @@ fun DashboardContent(
                         }
                     }
                 )
+            }
+        }
+
+        // Save Buttons at Bottom (shown only when viewing older date)
+        if (isViewingOlderDate) {
+            item {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp)
+                        .padding(vertical = 16.dp),
+                    horizontalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+                    Button(
+                        onClick = {
+                            // Save under older date
+                            scope.launch {
+                                displayedEntries.forEach { entry ->
+                                    repository.updateEntry(entry)
+                                }
+                            }
+                        },
+                        modifier = Modifier.weight(1f),
+                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF6200EE))
+                    ) {
+                        Text("Save under older date", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 11.sp)
+                    }
+
+                    Button(
+                        onClick = {
+                            // Save under today's date
+                            scope.launch {
+                                displayedEntries.forEach { entry ->
+                                    val updatedEntry = entry.copy(dateTime = "$todayDate ${LocalDate.now().format(DateTimeFormatter.ofPattern("HH:mm:ss"))}")
+                                    repository.updateEntry(updatedEntry)
+                                }
+                            }
+                        },
+                        modifier = Modifier.weight(1f),
+                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF2D5016))
+                    ) {
+                        Text("Save under today's date", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 11.sp)
+                    }
+                }
             }
         }
 
